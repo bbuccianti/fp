@@ -1,0 +1,48 @@
+(defproject fp "0.1.0"
+  :license {:name "MIT"}
+
+  :min-lein-version "2.9.1"
+
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/clojurescript "1.10.520"]
+                 [org.clojure/core.async  "0.4.500"]]
+
+  :plugins [[lein-figwheel "0.5.19"]
+            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
+
+  :source-paths ["src"]
+
+  :cljsbuild {:builds
+              [{:id "dev"
+                :source-paths ["src"]
+
+                :figwheel {:on-jsload "fp.core/on-js-reload"
+                           :open-urls ["http://localhost:3449/index.html"]}
+
+                :compiler {:main fp.core
+                           :asset-path "js/compiled/out"
+                           :output-to "resources/public/js/compiled/fp.js"
+                           :output-dir "resources/public/js/compiled/out"
+                           :source-map-timestamp true
+                           :preloads [devtools.preload]}}
+               {:id "min"
+                :source-paths ["src"]
+                :compiler {:output-to "resources/public/js/compiled/fp.js"
+                           :main fp.core
+                           :optimizations :advanced
+                           :pretty-print false}}]}
+
+  :figwheel {:css-dirs ["resources/public/css"] ;; watch and update CSS
+             :nrepl-port 7888}
+
+  :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
+                                  [figwheel-sidecar "0.5.19"]]
+                   :source-paths ["src" "dev" "test"]
+                   :clean-targets ^{:protect false} ["resources/public/js/compiled"
+                                                     :target-path]}
+
+             :kaocha {:dependencies [[lambdaisland/kaocha "0.0-581"]
+                                     [lambdaisland/kaocha-cljs "0.0-68"]]}}
+
+  :aliases {"kaocha" ["with-profile" "+kaocha" "run"
+                      "-m" "kaocha.runner" "unit-cljs"]})
