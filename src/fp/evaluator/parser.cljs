@@ -4,6 +4,8 @@
    [clojure.string :as string]
    [cljs.reader :refer [read-string]]))
 
+(declare parse)
+
 (defn str-number? [s]
   (not (js/isNaN s)))
 
@@ -30,12 +32,21 @@
                  s)
      :sequence (mapv (comp parse str) sq)}))
 
+(defn parse-application [s]
+  (let [splitted (string/split s #":")]
+    {:string s
+     :application {:operator (parse (string/trim (first splitted)))
+                   :operand (parse (string/trim (second splitted)))}}))
+
 (defn parse [s]
   (match [s]
     [(xpr :guard #(= "[" (first s)))]
-    (parse-sequence xpr true)
+    (parse-sequence xpr :change)
 
     [(xpr :guard #(= "<" (first s)))]
-    (parse-sequence xpr)
+    (parse-sequence xpr nil)
+
+    [(appli :guard #(boolean (re-find #":" s)))]
+    (parse-application appli)
 
     :else (parse-object s)))

@@ -4,7 +4,7 @@
    [fp.evaluator.parser :refer [parse]]))
 
 (deftest objects
-  (are [a b] (= a b)
+  (are [exp act] (= exp act)
     {:string "T" :type :bool :val true} (parse "T")
     {:string "F" :type :bool :val false} (parse "F")
 
@@ -30,3 +30,13 @@
                        {:string "C" :type :symbol}]}
            {:string "D" :type :symbol}]}
     (parse "<A, <<B>, C>, D>")))
+
+(deftest functions
+  (are [exp act] (= exp act)
+    {:string "1 : <A, B, C>"
+     :application {:operator {:string "1" :type :number :val 1}
+                   :operand {:string "<A, B, C>"
+                             :sequence [{:string "A" :type :symbol}
+                                        {:string "B" :type :symbol}
+                                        {:string "C" :type :symbol}]}}}
+    (parse "1 : <A, B, C>")))
