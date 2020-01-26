@@ -37,10 +37,16 @@
              :nrepl-port 7888}
 
   :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
-                                  [figwheel-sidecar "0.5.19"]]
+                                  [figwheel-sidecar "0.5.19"]
+                                  [cider/piggieback "0.4.2"]
+                                  [nrepl "0.7.0-alpha3"]]
+                   :repl-options {:nrepl-middleware
+                                  [cider.piggieback/wrap-cljs-repl]}
+
                    :source-paths ["src" "dev" "test"]
-                   :clean-targets ^{:protect false} ["resources/public/js/compiled"
-                                                     :target-path]}
+
+                   :clean-targets ^{:protect false}
+                   ["resources/public/js/compiled" :target-path]}
 
              :kaocha {:dependencies [[lambdaisland/kaocha "0.0-581"]
                                      [lambdaisland/kaocha-cljs "0.0-68"]]}}
