@@ -17,7 +17,16 @@
     {:string "∅" :type :empty} (parse "∅")
 
     {:string "<AB,1,2.3>"
-     :seq [{:string "AB" :type :symbol}
-           {:string "1" :type :number :val 1}
-           {:string "2.3" :type :number :val 2.3}]}
-    (parse "<AB,1,2.3>")))
+     :sequence [{:string "AB" :type :symbol}
+                {:string "1" :type :number :val 1}
+                {:string "2.3" :type :number :val 2.3}]}
+    (parse "<AB,1,2.3>")
+
+    {:string "<A, <<B>, C>, D>"
+     :sequence [{:string "A" :type :symbol}
+           {:string "<<B>, C>"
+            :sequence [{:string "<B>"
+                        :sequence [{:string "B" :type :symbol}]}
+                       {:string "C" :type :symbol}]}
+           {:string "D" :type :symbol}]}
+    (parse "<A, <<B>, C>, D>")))

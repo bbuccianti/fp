@@ -21,15 +21,20 @@
 
           :else {:type :symbol})))
 
-(defn parse-sequence [s]
-  (let [open (string/replace s #"<" "[")
-        close (string/replace open #">" "]")
-        clj-parsed (read-string close)]
-    {:string s
-     :seq (mapv (comp parse str) clj-parsed)}))
+(defn parse-sequence [s flag]
+  (let [replaced (-> s (string/replace #"<" "[") (string/replace #">" "]"))
+        sq (read-string replaced)]
+    {:string (or (and flag (-> (str "[" (string/join ", " sq) "]")
+                               (string/replace #"\[" "<")
+                               (string/replace #"\]" ">")))
+                 s)
+     :sequence (mapv (comp parse str) sq)}))
 
 (defn parse [s]
   (match [s]
+    [(xpr :guard #(= "[" (first s)))]
+    (parse-sequence xpr true)
+
     [(xpr :guard #(= "<" (first s)))]
     (parse-sequence xpr)
 
