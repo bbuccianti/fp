@@ -28,7 +28,12 @@
   (are [exp act] (= exp act)
     {:type :bool :val true} (evaluate (parse "atom : 5"))
     {:type :bool :val false} (evaluate (parse "atom : <A, B, C>"))
+    {:type :undefined} (evaluate (parse "atom : ⊥"))
 
     {:type :bool :val true} (evaluate (parse "eq : <A, A>"))
     {:type :bool :val false} (evaluate (parse "eq : <A, 7>"))
-    {:string "⊥" :type :undefined} (evaluate (parse "eq : <A, B, C>"))))
+    {:type :undefined} (evaluate (parse "eq : <A, B, C>"))
+
+    {:type :bool :val true} (evaluate (parse "null : ∅"))
+    {:type :bool :val false} (evaluate (parse "null : <A, 7>"))
+    {:type :undefined} (evaluate (parse "null : ⊥"))))
