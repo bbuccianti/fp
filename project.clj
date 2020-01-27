@@ -3,10 +3,13 @@
 
   :min-lein-version "2.9.1"
 
-  :dependencies [[org.clojure/clojure "1.10.0"]
-                 [org.clojure/clojurescript "1.10.520"]
+  :dependencies [[org.clojure/clojure "1.10.1"]
+                 [org.clojure/clojurescript "1.10.597"]
                  [org.clojure/core.async  "0.4.500"]
-                 [org.clojure/core.match "0.3.0"]]
+                 [org.clojure/core.match "0.3.0"]
+                 [reagent "0.9.1"]
+                 [re-frame "0.11.0"]
+                 [cljsjs/semantic-ui-react "0.88.1-0"]]
 
   :plugins [[lein-figwheel "0.5.19"]
             [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
@@ -37,20 +40,21 @@
   :figwheel {:css-dirs ["resources/public/css"] ;; watch and update CSS
              :nrepl-port 7888}
 
-  :profiles {:dev {:dependencies [[binaryage/devtools "0.9.10"]
-                                  [figwheel-sidecar "0.5.19"]
-                                  [cider/piggieback "0.4.2"]
-                                  [nrepl "0.7.0-alpha3"]]
-                   :repl-options {:nrepl-middleware
-                                  [cider.piggieback/wrap-cljs-repl]}
+  :profiles
+  {:dev {:dependencies [[binaryage/devtools "0.9.10"]
+                        [figwheel-sidecar "0.5.19"]
+                        [cider/piggieback "0.4.2"]
+                        [nrepl "0.7.0-alpha3"]]
+         :repl-options
+         {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
-                   :source-paths ["src" "dev" "test"]
+         :source-paths ["src" "dev" "test"]
 
-                   :clean-targets ^{:protect false}
-                   ["resources/public/js/compiled" :target-path]}
+         :clean-targets ^{:protect false}
+         ["resources/public/js/compiled" :target-path]}
 
-             :kaocha {:dependencies [[lambdaisland/kaocha "0.0-581"]
-                                     [lambdaisland/kaocha-cljs "0.0-68"]]}}
+   :kaocha {:dependencies [[lambdaisland/kaocha "0.0-581"]
+                           [lambdaisland/kaocha-cljs "0.0-68"]]}}
 
   :aliases {"kaocha" ["with-profile" "+kaocha" "run"
                       "-m" "kaocha.runner" "unit-cljs"]}
