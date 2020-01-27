@@ -5,15 +5,26 @@
    [fp.semantic :as ui]))
 
 (defn app []
-  (fn []
-    [:> ui/container {:style {:min-height "100vh"}}
-     [:> ui/container]
-     [:> ui/container {:style {:position "fixed"
-                               :bottom "10px"}}
-      [:> ui/input {:placeholder "Inserte una expresión..."
-                    :action "Evaluar"
-                    :fluid true
-                    :size "huge"}]]]))
+  (let [in (r/atom "")
+        out (r/atom [])]
+    (fn []
+      [:> ui/container {:style {:min-height "100vh"}}
+       [:> ui/container
+        (for [output @out]
+          ^{:key (gensym "out")}
+          [:div output])]
+       [:> ui/container {:style {:position "fixed"
+                                 :bottom "10px"}}
+        [:> ui/input {:placeholder "Inserte una expresión..."
+                      :fluid true
+                      :size "huge"
+                      :value @in
+                      :onChange (fn [e v] (reset! in (.-value v)))
+                      :action
+                      {:content "Evaluar"
+                       :on-click #(do
+                                    (swap! out conj @in)
+                                    (reset! in ""))}}]]])))
 
 (defn mount-app []
   (when-let [el (gdom/getElement "app")]
