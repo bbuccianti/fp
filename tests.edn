@@ -1,3 +1,4 @@
 #kaocha/v1
 {:tests [{:id :unit-cljs
-          :type :kaocha.type/cljs}]}
+          :type :kaocha.type/cljs}]
+ :watch? true}
