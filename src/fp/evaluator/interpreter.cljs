@@ -14,4 +14,10 @@
             i (js/parseInt (first (:string operator)))]
         (get vctr (dec i)))
 
+      [{:type :symbol}]
+      (case (:string operator)
+        "tl" {:sequence (vec (rest (:sequence operand)))}
+        "tlr" {:sequence (-> (:sequence operand) reverse rest reverse vec)}
+        "id" operand)
+
       :else parsed-map)))
