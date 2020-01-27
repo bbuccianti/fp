@@ -57,3 +57,14 @@
     {:type :undefined}       (evaluate (parse "÷ : <1, 0>"))
     {:type :undefined}       (evaluate (parse "÷ : <1, A>"))
     {:type :undefined}       (evaluate (parse "÷ : <1, 2, 3>"))))
+
+(deftest logic
+  (are [exp act] (= exp act)
+    {:type :bool :val false} (evaluate (parse "and : <T, F>"))
+    {:type :undefined}       (evaluate (parse "and : <1, 0>"))
+
+    {:type :bool :val true}  (evaluate (parse "or : <T, F>"))
+
+    {:type :bool :val false} (evaluate (parse "not : T"))
+    {:type :bool :val true}  (evaluate (parse "not : F"))
+    {:type :undefined}       (evaluate (parse "not : 2"))))

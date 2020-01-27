@@ -19,57 +19,64 @@
         (get vctr (dec i)))
 
       [{:type :symbol :string op} (:or {:sequence sqc} _)]
-      (case op
+      (cond
         ;; SELECTORS
-
-        "tl"
+        (= op "tl")
         {:sequence (vec (rest sqc))}
 
-        "tlr"
+        (= op "tlr")
         {:sequence (-> sqc reverse rest reverse vec)}
 
-        "id"
+        (= op "id")
         operand
 
         ;; PREDICATES
-
-        "atom"
+        (= op "atom")
         {:type :bool :val (not (contains? operand :sequence))}
 
-        "eq"
+        (= op "eq")
         (if (= 2 (count sqc))
           {:type :bool
-           :val (= (-> sqc first :string) (-> sqc second :string))}
+           :val (apply = (map :string sqc))}
           {:type :undefined})
 
-        "null"
+        (= op "null")
         {:type :bool :val (= (:type operand) :empty)}
 
         ;; ARITHMETICS
-
-        "+"
+        (or (= op "+") (= op "-") (= op "×"))
         (if (and (= 2 (count sqc))
                  (every? (partial = :number) (map :type sqc)))
-          {:type :number :val (apply + (map :val sqc))}
+          {:type :number
+           :val (apply (case op
+                         "+" +
+                         "-" -
+                         "×" *)
+                       (map :val sqc))}
           {:type :undefined})
 
-        "-"
-        (if (and (= 2 (count sqc))
-                 (every? (partial = :number) (map :type sqc)))
-          {:type :number :val (apply - (map :val sqc))}
-          {:type :undefined})
-
-        "×"
-        (if (and (= 2 (count sqc))
-                 (every? (partial = :number) (map :type sqc)))
-          {:type :number :val (apply * (map :val sqc))}
-          {:type :undefined})
-
-        "÷"
+        (= op "÷")
         (if (and (= 2 (count sqc))
                  (every? (partial = :number) (map :type sqc))
                  (not= 0 (:val (last sqc))))
           {:type :number :val (apply / (map :val sqc))}
+          {:type :undefined})
+
+        ;; LOGIC
+
+        (or (= op "and") (= op "or"))
+        (if (and (= 2 (count sqc))
+                 (every? (partial = :bool) (mapv :type sqc)))
+          {:type :bool
+           :val ((case op
+                   "and" every?
+                   "or" some)
+                 identity (mapv :val sqc))}
+          {:type :undefined})
+
+        (= op "not")
+        (if (= :bool (:type operand))
+          {:type :bool :val (not (:val operand))}
           {:type :undefined}))
 
       :else parsed-map)))
