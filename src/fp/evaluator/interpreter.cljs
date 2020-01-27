@@ -18,6 +18,12 @@
       (case (:string operator)
         "tl" {:sequence (vec (rest (:sequence operand)))}
         "tlr" {:sequence (-> (:sequence operand) reverse rest reverse vec)}
-        "id" operand)
+        "id" operand
+        "atom" {:type :bool :val (not (contains? operand :sequence))}
+        "eq" (let [sqc (:sequence operand)]
+               (if (or (< (count sqc) 2) (> (count sqc) 2))
+                 {:string "⊥" :type :undefined}
+                 {:type :bool :val (= (-> sqc first :string)
+                                      (-> sqc second :string))})))
 
       :else parsed-map)))

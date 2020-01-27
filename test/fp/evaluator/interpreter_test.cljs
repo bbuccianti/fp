@@ -23,3 +23,12 @@
 
     {:sequence [{:string "A" :type :symbol} {:string "B" :type :symbol}]}
     (evaluate (parse "tlr : <A, B, C>"))))
+
+(deftest predicates
+  (are [exp act] (= exp act)
+    {:type :bool :val true} (evaluate (parse "atom : 5"))
+    {:type :bool :val false} (evaluate (parse "atom : <A, B, C>"))
+
+    {:type :bool :val true} (evaluate (parse "eq : <A, A>"))
+    {:type :bool :val false} (evaluate (parse "eq : <A, 7>"))
+    {:string "⊥" :type :undefined} (evaluate (parse "eq : <A, B, C>"))))
