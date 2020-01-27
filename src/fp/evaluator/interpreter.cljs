@@ -4,6 +4,8 @@
 (defn evaluate [parsed-map]
   (let [operator (get-in parsed-map [:application :operator])
         operand (get-in parsed-map [:application :operand])]
+    (declare sqc) ;; avoid awful logs for use of undeclared
+
     (match [operator operand]
       [_ {:type :undefined}]
       {:type :undefined}
@@ -16,28 +18,58 @@
             i (-> operator :string first js/parseInt)]
         (get vctr (dec i)))
 
-      [{:type :symbol} _]
-      (case (:string operator)
+      [{:type :symbol :string op} (:or {:sequence sqc} _)]
+      (case op
+        ;; SELECTORS
+
         "tl"
-        {:sequence (vec (rest (:sequence operand)))}
+        {:sequence (vec (rest sqc))}
 
         "tlr"
-        {:sequence (-> (:sequence operand) reverse rest reverse vec)}
+        {:sequence (-> sqc reverse rest reverse vec)}
 
         "id"
         operand
+
+        ;; PREDICATES
 
         "atom"
         {:type :bool :val (not (contains? operand :sequence))}
 
         "eq"
-        (let [sqc (:sequence operand)]
-          (if (not= 2 (count sqc))
-            {:type :undefined}
-            {:type :bool :val (= (-> sqc first :string)
-                                 (-> sqc second :string))}))
+        (if (= 2 (count sqc))
+          {:type :bool
+           :val (= (-> sqc first :string) (-> sqc second :string))}
+          {:type :undefined})
 
         "null"
-        {:type :bool :val (= (:type operand) :empty)})
+        {:type :bool :val (= (:type operand) :empty)}
+
+        ;; ARITHMETICS
+
+        "+"
+        (if (and (= 2 (count sqc))
+                 (every? (partial = :number) (map :type sqc)))
+          {:type :number :val (apply + (map :val sqc))}
+          {:type :undefined})
+
+        "-"
+        (if (and (= 2 (count sqc))
+                 (every? (partial = :number) (map :type sqc)))
+          {:type :number :val (apply - (map :val sqc))}
+          {:type :undefined})
+
+        "×"
+        (if (and (= 2 (count sqc))
+                 (every? (partial = :number) (map :type sqc)))
+          {:type :number :val (apply * (map :val sqc))}
+          {:type :undefined})
+
+        "÷"
+        (if (and (= 2 (count sqc))
+                 (every? (partial = :number) (map :type sqc))
+                 (not= 0 (:val (last sqc))))
+          {:type :number :val (apply / (map :val sqc))}
+          {:type :undefined}))
 
       :else parsed-map)))

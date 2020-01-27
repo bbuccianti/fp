@@ -39,4 +39,18 @@
                              :sequence [{:string "A" :type :symbol}
                                         {:string "B" :type :symbol}
                                         {:string "C" :type :symbol}]}}}
-    (parse "1 : <A, B, C>")))
+    (parse "1 : <A, B, C>")
+
+    {:string "+ : <1, 2>"
+     :application {:operator {:string "+" :type :symbol}
+                   :operand {:string "<1, 2>"
+                             :sequence [{:string "1" :type :number :val 1}
+                                        {:string "2" :type :number :val 2}]}}}
+    (parse "+ : <1, 2>")
+
+    {:string "- : <9, 2>"
+     :application {:operator {:string "-" :type :symbol}
+                   :operand {:string "<9, 2>"
+                             :sequence [{:string "9" :type :number :val 9}
+                                        {:string "2" :type :number :val 2}]}}}
+    (parse "- : <9, 2>")))
