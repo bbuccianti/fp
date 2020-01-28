@@ -2,29 +2,16 @@
   (:require
    [goog.dom :as gdom]
    [reagent.core :as r]
-   [fp.semantic :as ui]))
+   [fp.semantic :as ui]
+   [fp.components :refer [input-bar output-segments]]))
 
 (defn app []
   (let [in (r/atom "")
         out (r/atom [])]
     (fn []
       [:> ui/container {:style {:min-height "100vh"}}
-       [:> ui/container
-        (for [output @out]
-          ^{:key (gensym "out")}
-          [:div output])]
-       [:> ui/container {:style {:position "fixed"
-                                 :bottom "10px"}}
-        [:> ui/input {:placeholder "Inserte una expresión..."
-                      :fluid true
-                      :size "huge"
-                      :value @in
-                      :onChange (fn [e v] (reset! in (.-value v)))
-                      :action
-                      {:content "Evaluar"
-                       :on-click #(do
-                                    (swap! out conj @in)
-                                    (reset! in ""))}}]]])))
+       (output-segments out)
+       (input-bar in out)])))
 
 (defn mount-app []
   (when-let [el (gdom/getElement "app")]
