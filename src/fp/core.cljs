@@ -6,12 +6,12 @@
    [fp.components :refer [input-bar output-segments]]))
 
 (defn app []
-  (let [in (r/atom "")
-        out (r/atom [])]
+  (let [in (r/atom "")]
     (fn []
-      [:> ui/container {:style {:min-height "100vh"}}
-       (output-segments out)
-       (input-bar in out)])))
+      [:> ui/container
+       {:id "container"}
+       [output-segments]
+       [input-bar in]])))
 
 (defn mount-app []
   (when-let [el (gdom/getElement "app")]

@@ -13,5 +13,6 @@
     (goog.object/get semantic-ui k)))
 
 (def container (component "Container"))
-(def button (component "Button"))
-(def input (component "Input"))
+(def button    (component "Button"))
+(def input     (component "Input"))
+(def segment   (component "Segment"))
