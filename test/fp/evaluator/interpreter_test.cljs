@@ -6,8 +6,7 @@
 
 (deftest selectors
   (are [exp act] (= exp (-> act parse evaluate))
-    {:string "<A, B, C>"
-     :sequence [{:string "A" :type :symbol}
+    {:sequence [{:string "A" :type :symbol}
                 {:string "B" :type :symbol}
                 {:string "C" :type :symbol}]}
     "id : <A, B, C>"
@@ -59,12 +58,46 @@
     {:type :undefined}       "÷ : <1, 2, 3>"))
 
 (deftest logic
-  (are [exp act] (= exp act)
-    {:type :bool :val false} (evaluate (parse "and : <T, F>"))
-    {:type :undefined}       (evaluate (parse "and : <1, 0>"))
+  (are [exp act] (= exp (-> act parse evaluate))
+    {:type :bool :val false} "and : <T, F>"
+    {:type :undefined}       "and : <1, 0>"
 
-    {:type :bool :val true}  (evaluate (parse "or : <T, F>"))
+    {:type :bool :val true}  "or : <T, F>"
 
-    {:type :bool :val false} (evaluate (parse "not : T"))
-    {:type :bool :val true}  (evaluate (parse "not : F"))
-    {:type :undefined}       (evaluate (parse "not : 2"))))
+    {:type :bool :val false} "not : T"
+    {:type :bool :val true}  "not : F"
+    {:type :undefined}       "not : 2"))
+
+(deftest sequences
+  (are [exp act] (= exp (-> act parse evaluate))
+    {:type :undefined}     "length : A"
+    {:type :number :val 0} "length : ∅"
+    {:type :number :val 3} "length : <2, A, 7>"
+
+    {:sequence [{:string "7" :type :number :val 7}
+                {:type :symbol :string "A"}
+                {:string "2" :type :number :val 2}]}
+    "reverse : <2, A, 7>"
+
+    {:type :undefined} "trans: A"
+    (parse "<<1, A>, <2, B>, <3, C>>")
+    "trans: <<1,2,3>,<A,B,C>>"
+
+    (parse "<<A, 1>, <A, 2>, <A, 3>>") "distl : <A, <1, 2, 3>>"
+
+    (parse "<<1,A>,<2,A>,<3,A>>") "distr: <<1,2,3>,A>"
+
+    (parse "<<A,B>,C,D>") "apndl: <<A,B>,<C,D>>"
+    (parse "<y>")         "apndl: <y, ∅>"
+
+    (parse "<A,B,<C,D>>") "apndr:<<A,B>,<C,D>>"
+    (parse "<y>")         "apndr: <∅, y>"
+
+    (parse "<B,C,D,A>")   "rotl: <A,B,C,D>"
+    {:type :empty}        "rotl: ∅"
+    (parse "<y>")         "rotl: <y>"
+    {:type :undefined}    "rotl: 1"
+
+    (parse "<D,A,B,C>")   "rotr: <A,B,C,D>"
+    {:type :empty}        "rotr: ∅"
+    (parse "<y>")         "rotr: <y>"))
