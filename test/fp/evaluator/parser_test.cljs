@@ -16,17 +16,13 @@
     {:string "⊥" :type :undefined} "⊥"
     {:string "∅" :type :empty} "∅"
 
-    {:string "<AB,1,2.3>"
-     :sequence [{:string "AB" :type :symbol}
+    {:sequence [{:string "AB" :type :symbol}
                 {:string "1" :type :number :val 1}
                 {:string "2.3" :type :number :val 2.3}]}
     "<AB,1,2.3>"
 
-    {:string "<A, <<B>, C>, D>"
-     :sequence [{:string "A" :type :symbol}
-           {:string "<<B>, C>"
-            :sequence [{:string "<B>"
-                        :sequence [{:string "B" :type :symbol}]}
+    {:sequence [{:string "A" :type :symbol}
+           {:sequence [{:sequence [{:string "B" :type :symbol}]}
                        {:string "C" :type :symbol}]}
            {:string "D" :type :symbol}]}
     "<A, <<B>, C>, D>"))
@@ -35,22 +31,19 @@
   (are [exp act] (= exp (parse act))
     {:string "1 : <A, B, C>"
      :application {:operator {:string "1" :type :number :val 1}
-                   :operand {:string "<A, B, C>"
-                             :sequence [{:string "A" :type :symbol}
+                   :operand {:sequence [{:string "A" :type :symbol}
                                         {:string "B" :type :symbol}
                                         {:string "C" :type :symbol}]}}}
     "1 : <A, B, C>"
 
     {:string "+ : <1, 2>"
      :application {:operator {:string "+" :type :symbol}
-                   :operand {:string "<1, 2>"
-                             :sequence [{:string "1" :type :number :val 1}
+                   :operand {:sequence [{:string "1" :type :number :val 1}
                                         {:string "2" :type :number :val 2}]}}}
     "+ : <1, 2>"
 
     {:string "- : <9, 2>"
      :application {:operator {:string "-" :type :symbol}
-                   :operand {:string "<9, 2>"
-                             :sequence [{:string "9" :type :number :val 9}
+                   :operand {:sequence [{:string "9" :type :number :val 9}
                                         {:string "2" :type :number :val 2}]}}}
     "- : <9, 2>"))

@@ -26,11 +26,7 @@
 (defn parse-sequence [s flag]
   (let [replaced (-> s (string/replace #"<" "[") (string/replace #">" "]"))
         sq (read-string replaced)]
-    {:string (or (and flag (-> (str "[" (string/join ", " sq) "]")
-                               (string/replace #"\[" "<")
-                               (string/replace #"\]" ">")))
-                 s)
-     :sequence (mapv (comp parse str) sq)}))
+    {:sequence (mapv (comp parse str) sq)}))
 
 (defn parse-application [s]
   (let [splitted (string/split s #":")]
