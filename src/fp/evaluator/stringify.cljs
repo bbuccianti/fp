@@ -18,4 +18,6 @@
     (if (:val obj) "T" "F")
 
     [{:sequence sqc}]
-    (str "<" (string/join ", " (map to-string sqc)) ">")))
+    (if (= (count sqc) 0)
+      "∅"
+      (str "<" (string/join ", " (map to-string sqc)) ">"))))
