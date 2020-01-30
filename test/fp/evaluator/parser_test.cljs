@@ -56,4 +56,12 @@
                    :operand {:sequence [{:string "A" :type :symbol}
                                         {:string "B" :type :symbol}
                                         {:string "C" :type :symbol}]}}}
-    "1 ∘ tl: <A, B, C>"))
+    "1 ∘ tl: <A, B, C>"
+
+    {:string "[tl, tlr] : <A,B,C>"
+     :construction {:functions [{:string "tl" :type :symbol}
+                                {:string "tlr" :type :symbol}]
+                    :operand {:sequence [{:string "A" :type :symbol}
+                                         {:string "B" :type :symbol}
+                                         {:string "C" :type :symbol}]}}}
+    "[tl, tlr] : <A,B,C>"))

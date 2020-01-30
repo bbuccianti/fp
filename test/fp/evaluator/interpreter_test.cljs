@@ -104,4 +104,5 @@
 
 (deftest functional-forms
   (are [exp act] (= (parse exp) (-> act parse evaluate))
-    "B" "1 ∘ tl: <A, B, C>"))
+    "B"                    "1 ∘ tl: <A, B, C>"
+    "<<B, C>, <A, B>>"     "[tl, tlr] : <A,B,C>"))

@@ -6,6 +6,12 @@
         operand (get-in parsed-map [:application :operand])]
     (declare sqc) ;; avoid awful logs for use of undeclared
     (match [parsed-map]
+      [{:construction cnst}]
+      {:sequence
+       (mapv (fn [f o]
+               (evaluate {:application {:operator f :operand o}}))
+             (:functions cnst) (repeat (:operand cnst)))}
+
       [{:composition cmpst}]
       (reduce (fn [sqc f]
                 (evaluate {:application {:operator f

@@ -42,8 +42,21 @@
      {:functions (rseq (mapv (comp parse string/trim) left))
       :operand (parse right)}}))
 
+(defn parse-construction [s]
+  (let [spl (string/split s #":")
+        right (string/trim (second spl))
+        l (string/replace (first spl) "[" "")
+        r (string/replace l "]" "")
+        left (string/split r #",")]
+    {:string s
+     :construction {:functions (mapv (comp parse string/trim) left)
+                    :operand (parse right)}}))
+
 (defn parse [s]
   (match [s]
+    [(cnstr :guard #(boolean (re-find #"\[.*\].*:" s)))]
+    (parse-construction cnstr)
+
     [(xpr :guard #(= "[" (first s)))]
     (parse-sequence xpr :change)
 
