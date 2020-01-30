@@ -18,8 +18,7 @@
     {:type :bool :val (not (contains? operand :sequence))}
 
     (and (= op "eq") (= 2 (count (:sequence operand))))
-    {:type :bool
-     :val (apply = (map :string (:sequence operand)))}
+    {:type :bool :val (apply = (map :string (:sequence operand)))}
 
     (= op "null")
     {:type :bool :val (= (:type operand) :empty)}
@@ -28,26 +27,22 @@
     (and (or (= op "+") (= op "-") (= op "×"))
          (= 2 (count (:sequence operand)))
          (every? (partial = :number) (map :type (:sequence operand))))
-    {:type :number
-     :val (apply (case op
-                   "+" +
-                   "-" -
-                   "×" *)
-                 (map :val (:sequence operand)))}
+    (let [val (apply (case op "+" + "-" - "×" *)
+                     (map :val (:sequence operand)))]
+      {:type :number :val val :string (str val)})
 
     (and (= op "÷") (= 2 (count (:sequence operand)))
          (every? (partial = :number) (map :type (:sequence operand)))
          (not= 0 (:val (last (:sequence operand)))))
-    {:type :number :val (apply / (map :val (:sequence operand)))}
+    (let [val (apply / (map :val (:sequence operand)))]
+      {:type :number :val val :string (str val)})
 
     ;; LOGIC
     (and (or (= op "and") (= op "or"))
          (= 2 (count (:sequence operand)))
          (every? (partial = :bool) (mapv :type (:sequence operand))))
     {:type :bool
-     :val ((case op
-             "and" every?
-             "or" some)
+     :val ((case op "and" every? "or" some)
            identity (mapv :val (:sequence operand)))}
 
     (and (= op "not") (= :bool (:type operand)))
@@ -141,6 +136,11 @@
 
         [{:type :symbol :string op} _]
         (evaluate-application op operand)
+
+        [{:type :constant} _]
+        {:string (str (:val operator))
+         :type :number
+         :val (:val operator)}
 
         :else "Error"))
 

@@ -10,10 +10,15 @@
   (not (js/isNaN s)))
 
 (defn parse-object [s]
-  (into {:string s}
-        (match [s]
-          [(:or "T" "F")]
-          {:type :bool :val (or (and (= s "T") true) false)}
+  (match [s]
+    [(:or "T" "F")]
+    {:type :bool :val (= s "T")}
+
+    [(:or "⊥" "∅")]
+    {:type (if (= s "∅") :empty :undefined)}
+
+    [(n :guard str-number?)]
+    {:string n :type :number :val (js/parseFloat n)}
 
           [(:or "⊥" "∅")]
           {:type (or (and (= s "∅") :empty) :undefined)}
@@ -38,7 +43,7 @@
   (let [splitted (string/split s #":")
         left (string/split (first splitted) #"∘")
         right (string/trim (second splitted))]
-    {:string s :composition
+    {:composition
      {:functions (rseq (mapv (comp parse string/trim) left))
       :operand (parse right)}}))
 
@@ -48,9 +53,9 @@
         l (string/replace (first spl) "[" "")
         r (string/replace l "]" "")
         left (string/split r #",")]
-    {:string s
      :construction {:functions (mapv (comp parse string/trim) left)
                     :operand (parse right)}}))
+    {:construction
 
 (defn parse-condition [s]
   (let [spl (string/split s #":")
@@ -58,8 +63,7 @@
         lspl (string/split (first spl) #"→")
         fns (-> lspl first (string/replace "(" "") (string/split #"∘"))
         later (-> lspl second (string/replace ")" "") (string/split #";"))]
-    {:string s
-     :condition
+    {:condition
      {:functions (rseq (mapv (comp parse string/trim) fns))
       :true (-> (first later) string/trim parse)
       :false (-> (second later) string/trim parse)

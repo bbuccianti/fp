@@ -25,52 +25,52 @@
     "tlr : <A, B, C>"))
 
 (deftest predicates
-  (are [exp act] (= exp (-> act parse evaluate))
-    {:type :bool :val true}  "atom : 5"
-    {:type :bool :val false} "atom : <A, B, C>"
-    {:type :undefined}       "atom : ⊥"
+  (are [exp act] (= (parse exp) (-> act parse evaluate))
+    "T"  "atom : 5"
+    "F"  "atom : <A, B, C>"
+    "⊥"  "atom : ⊥"
 
-    {:type :bool :val true}  "eq : <A, A>"
-    {:type :bool :val false} "eq : <A, 7>"
-    {:type :undefined}       "eq : <A, B, C>"
+    "T"  "eq : <A, A>"
+    "F"  "eq : <A, 7>"
+    "⊥"  "eq : <A, B, C>"
 
-    {:type :bool :val true}  "null : ∅"
-    {:type :bool :val false} "null : <A, 7>"
-    {:type :undefined}       "null : ⊥"))
+    "T"  "null : ∅"
+    "F"  "null : <A, 7>"
+    "⊥"  "null : ⊥"))
 
 (deftest arithmetic
-  (are [exp act] (= exp (-> act parse evaluate))
-    {:type :number :val 3}   "+ : <1, 2>"
-    {:type :undefined}       "+ : <1, A>"
-    {:type :undefined}       "+ : <1, 2, 3>"
+  (are [exp act] (= (parse exp) (-> act parse evaluate))
+    "3"   "+ : <1, 2>"
+    "⊥"   "+ : <1, A>"
+    "⊥"   "+ : <1, 2, 3>"
 
-    {:type :number :val 7}   "- : <9, 2>"
-    {:type :undefined}       "- : <9, A>"
-    {:type :undefined}       "- : <1, 2, 3>"
+    "7"   "- : <9, 2>"
+    "⊥"   "- : <9, A>"
+    "⊥"   "- : <1, 2, 3>"
 
-    {:type :number :val 14}  "× : <2, 7>"
-    {:type :undefined}       "× : <A, 2>"
-    {:type :undefined}       "× : <1, 2, 3>"
+    "14"  "× : <2, 7>"
+    "⊥"   "× : <A, 2>"
+    "⊥"   "× : <1, 2, 3>"
 
-    {:type :number :val 5}   "÷ : <10, 2>"
-    {:type :undefined}       "÷ : <1, 0>"
-    {:type :undefined}       "÷ : <1, A>"
-    {:type :undefined}       "÷ : <1, 2, 3>"))
+    "5"   "÷ : <10, 2>"
+    "⊥"   "÷ : <1, 0>"
+    "⊥"   "÷ : <1, A>"
+    "⊥"   "÷ : <1, 2, 3>"))
 
 (deftest logic
-  (are [exp act] (= exp (-> act parse evaluate))
-    {:type :bool :val false} "and : <T, F>"
-    {:type :undefined}       "and : <1, 0>"
+  (are [exp act] (= (parse exp) (-> act parse evaluate))
+    "F"  "and : <T, F>"
+    "⊥"  "and : <1, 0>"
 
-    {:type :bool :val true}  "or : <T, F>"
+    "T"  "or : <T, F>"
 
-    {:type :bool :val false} "not : T"
-    {:type :bool :val true}  "not : F"
-    {:type :undefined}       "not : 2"))
+    "F"  "not : T"
+    "T"  "not : F"
+    "⊥"  "not : 2"))
 
 (deftest sequences
   (are [exp act] (= exp (-> act parse evaluate))
-    {:type :undefined}     "length : A"
+    (parse "⊥")     "length : A"
     {:type :number :val 0} "length : ∅"
     {:type :number :val 3} "length : <2, A, 7>"
 
@@ -79,7 +79,7 @@
                 {:string "2" :type :number :val 2}]}
     "reverse : <2, A, 7>"
 
-    {:type :undefined} "trans: A"
+    (parse "⊥")    "trans: A"
     (parse "<<1, A>, <2, B>, <3, C>>")
     "trans: <<1,2,3>,<A,B,C>>"
 
@@ -96,7 +96,7 @@
     (parse "<B,C,D,A>")   "rotl: <A,B,C,D>"
     {:type :empty}        "rotl: ∅"
     (parse "<y>")         "rotl: <y>"
-    {:type :undefined}    "rotl: 1"
+    (parse "⊥")    "rotl: 1"
 
     (parse "<D,A,B,C>")   "rotr: <A,B,C,D>"
     {:type :empty}        "rotr: ∅"
