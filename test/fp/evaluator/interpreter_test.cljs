@@ -101,3 +101,7 @@
     (parse "<D,A,B,C>")   "rotr: <A,B,C,D>"
     {:type :empty}        "rotr: ∅"
     (parse "<y>")         "rotr: <y>"))
+
+(deftest functional-forms
+  (are [exp act] (= (parse exp) (-> act parse evaluate))
+    "B" "1 ∘ tl: <A, B, C>"))

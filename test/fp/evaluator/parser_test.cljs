@@ -47,3 +47,13 @@
                    :operand {:sequence [{:string "9" :type :number :val 9}
                                         {:string "2" :type :number :val 2}]}}}
     "- : <9, 2>"))
+
+(deftest functional-forms
+  (are [exp act] (= exp (parse act))
+    {:string "1 ∘ tl: <A, B, C>"
+     :composition {:functions [{:string "tl" :type :symbol}
+                               {:string "1" :type :number :val 1}]
+                   :operand {:sequence [{:string "A" :type :symbol}
+                                        {:string "B" :type :symbol}
+                                        {:string "C" :type :symbol}]}}}
+    "1 ∘ tl: <A, B, C>"))

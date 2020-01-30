@@ -34,6 +34,14 @@
      :application {:operator (parse (string/trim (first splitted)))
                    :operand (parse (string/trim (second splitted)))}}))
 
+(defn parse-composition [s]
+  (let [splitted (string/split s #":")
+        left (string/split (first splitted) #"∘")
+        right (string/trim (second splitted))]
+    {:string s :composition
+     {:functions (rseq (mapv (comp parse string/trim) left))
+      :operand (parse right)}}))
+
 (defn parse [s]
   (match [s]
     [(xpr :guard #(= "[" (first s)))]
@@ -41,6 +49,9 @@
 
     [(xpr :guard #(= "<" (first s)))]
     (parse-sequence xpr nil)
+
+    [(cmp :guard #(boolean (re-find #"∘.*:" s)))]
+    (parse-composition cmp)
 
     [(appli :guard #(boolean (re-find #":" s)))]
     (parse-application appli)
