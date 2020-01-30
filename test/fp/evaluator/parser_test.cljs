@@ -68,4 +68,12 @@
                  :operand {:sequence [{:string "A" :type :symbol}
                                       {:string "B" :type :symbol}
                                       {:string "C" :type :symbol}]}}}
-    "(not ∘ atom → 1; id) : <A, B, C>"))
+    "(not ∘ atom → 1; id) : <A, B, C>"
+
+    {:composition
+     {:functions [{:construction
+                   {:functions [{:string "id" :type :symbol}
+                                {:string "‾1" :type :constant :val 1}]}}
+                  {:string "+" :type :symbol}]
+      :operand {:string "3" :type :number :val 3}}}
+    "+ ∘ [id, ‾1]: 3"))

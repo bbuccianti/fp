@@ -106,4 +106,7 @@
   (are [exp act] (= (parse exp) (-> act parse evaluate))
     "B"                    "1 ∘ tl: <A, B, C>"
     "<<B, C>, <A, B>>"     "[tl, tlr] : <A,B,C>"
-    "A"                    "(not ∘ atom → 1; id) : <A, B, C>"))
+    "A"                    "(not ∘ atom → 1; id) : <A, B, C>"
+    "4"                    "‾4 : T"
+    "<3, 1>"               "[id, ‾1]: 3"
+    "4"                    "+ ∘ [id, ‾1]: 3"))

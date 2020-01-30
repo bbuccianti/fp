@@ -20,23 +20,23 @@
     [(n :guard str-number?)]
     {:string n :type :number :val (js/parseFloat n)}
 
-          [(:or "⊥" "∅")]
-          {:type (or (and (= s "∅") :empty) :undefined)}
+    [(n :guard #(boolean (re-matches #"‾\d+" s)))]
+    (let [x (string/replace n "‾" "")]
+      {:string n :type :constant :val (js/parseFloat x)})
 
-          [(n :guard str-number?)]
-          {:type :number :val (js/parseFloat n)}
+    :else {:type :symbol :string s}))
 
-          :else {:type :symbol})))
+(defn replace-brackets [s]
+  (-> s (string/replace #"\[" "<") (string/replace #"\]" ">")))
 
 (defn parse-sequence [s flag]
   (let [replaced (-> s (string/replace #"<" "[") (string/replace #">" "]"))
         sq (read-string replaced)]
-    {:sequence (mapv (comp parse str) sq)}))
+    {:sequence (mapv (comp parse replace-brackets str) sq)}))
 
 (defn parse-application [s]
   (let [splitted (string/split s #":")]
-    {:string s
-     :application {:operator (parse (string/trim (first splitted)))
+    {:application {:operator (parse (string/trim (first splitted)))
                    :operand (parse (string/trim (second splitted)))}}))
 
 (defn parse-composition [s]
@@ -49,13 +49,12 @@
 
 (defn parse-construction [s]
   (let [spl (string/split s #":")
-        right (string/trim (second spl))
         l (string/replace (first spl) "[" "")
         r (string/replace l "]" "")
         left (string/split r #",")]
-     :construction {:functions (mapv (comp parse string/trim) left)
-                    :operand (parse right)}}))
     {:construction
+     (into {:functions (mapv (comp parse string/trim) left)}
+           (if (second spl) {:operand (parse (string/trim (second spl)))}))}))
 
 (defn parse-condition [s]
   (let [spl (string/split s #":")
@@ -74,11 +73,8 @@
     [(cnd :guard #(boolean (re-find #"\(.*→.*;.*\).*:" s)))]
     (parse-condition cnd)
 
-    [(cnstr :guard #(boolean (re-find #"\[.*\].*:" s)))]
+    [(cnstr :guard #(boolean (re-find #"^\[.*\]" s)))]
     (parse-construction cnstr)
-
-    [(xpr :guard #(= "[" (first s)))]
-    (parse-sequence xpr :change)
 
     [(xpr :guard #(= "<" (first s)))]
     (parse-sequence xpr nil)

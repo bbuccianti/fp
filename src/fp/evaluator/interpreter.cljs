@@ -114,10 +114,15 @@
            (:functions cnst) (repeat (:operand cnst)))}
 
     [{:composition cmpst}]
-    (reduce (fn [sqc f]
-              (evaluate {:application {:operator f
-                                       :operand sqc}}))
-            (:operand cmpst) (:functions cmpst))
+    (reduce
+     (fn [sqc f]
+       (if (contains? f :construction)
+         (evaluate
+          {:construction {:functions (get-in f [:construction :functions])
+                          :operand sqc}})
+         (evaluate
+          {:application {:operator f :operand sqc}})))
+     (:operand cmpst) (:functions cmpst))
 
     [{:application appli}]
     (let [operator (get appli :operator)
