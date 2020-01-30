@@ -106,6 +106,12 @@
 
 (defn evaluate [parsed-map]
   (match [parsed-map]
+    [{:condition cnd}]
+    (let [result (evaluate {:composition {:functions (:functions cnd)
+                                          :operand (:operand cnd)}})
+          op (if (:val result) (:true cnd) (:false cnd))]
+      (evaluate {:application {:operator op :operand (:operand cnd)}}))
+
     [{:construction cnst}]
     {:sequence
      (mapv (fn [f o]
@@ -133,7 +139,7 @@
               i (-> operator :string first js/parseInt)]
           (get vctr (dec i)))
 
-        [{:type :symbol :string op} (:or {:sequence sqc} _)]
+        [{:type :symbol :string op} _]
         (evaluate-application op operand)
 
         :else "Error"))

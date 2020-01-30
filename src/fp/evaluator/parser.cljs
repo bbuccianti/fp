@@ -52,8 +52,24 @@
      :construction {:functions (mapv (comp parse string/trim) left)
                     :operand (parse right)}}))
 
+(defn parse-condition [s]
+  (let [spl (string/split s #":")
+        right (string/trim (second spl))
+        lspl (string/split (first spl) #"→")
+        fns (-> lspl first (string/replace "(" "") (string/split #"∘"))
+        later (-> lspl second (string/replace ")" "") (string/split #";"))]
+    {:string s
+     :condition
+     {:functions (rseq (mapv (comp parse string/trim) fns))
+      :true (-> (first later) string/trim parse)
+      :false (-> (second later) string/trim parse)
+      :operand (parse right)}}))
+
 (defn parse [s]
   (match [s]
+    [(cnd :guard #(boolean (re-find #"\(.*→.*;.*\).*:" s)))]
+    (parse-condition cnd)
+
     [(cnstr :guard #(boolean (re-find #"\[.*\].*:" s)))]
     (parse-construction cnstr)
 

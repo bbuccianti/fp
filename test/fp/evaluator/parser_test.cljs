@@ -64,4 +64,14 @@
                     :operand {:sequence [{:string "A" :type :symbol}
                                          {:string "B" :type :symbol}
                                          {:string "C" :type :symbol}]}}}
-    "[tl, tlr] : <A,B,C>"))
+    "[tl, tlr] : <A,B,C>"
+
+    {:string "(not ∘ atom → 1; id) : <A, B, C>"
+     :condition {:functions [{:string "atom" :type :symbol}
+                             {:string "not" :type :symbol}]
+                 :true {:string "1" :type :number :val 1}
+                 :false {:string "id" :type :symbol}
+                 :operand {:sequence [{:string "A" :type :symbol}
+                                      {:string "B" :type :symbol}
+                                      {:string "C" :type :symbol}]}}}
+    "(not ∘ atom → 1; id) : <A, B, C>"))
