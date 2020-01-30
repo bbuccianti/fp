@@ -3,18 +3,7 @@
    [goog.dom :as gdom]
    [reagent.core :as r]
    [fp.semantic :as ui]
-   [fp.components :refer
-    [input-bar output-segments config-button sidebar]]))
-
-(defn app []
-  (let [in (r/atom "")]
-    (fn []
-      [:> ui/container
-       {:id "container"}
-       [config-button]
-       [sidebar]
-       [output-segments]
-       [input-bar in]])))
+   [fp.components :refer [app]]))
 
 (defn mount-app []
   (when-let [el (gdom/getElement "app")]
