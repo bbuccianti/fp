@@ -68,19 +68,31 @@
       :false (-> (second later) string/trim parse)
       :operand (parse right)}}))
 
+(defn parse-insertion [s]
+  (let [spl (string/split s #":")
+        right (string/trim (second spl))
+        l (string/split (first spl) #"/| ")
+        left (remove empty? l)]
+    {:insertion
+     {:function (-> left first string/trim parse)
+      :operand (-> right parse)}}))
+
 (defn parse [s]
   (match [s]
-    [(cnd :guard #(boolean (re-find #"\(.*→.*;.*\).*:" s)))]
-    (parse-condition cnd)
+    [(condi :guard #(boolean (re-find #"\(.*→.*;.*\).*:" s)))]
+    (parse-condition condi)
 
-    [(cnstr :guard #(boolean (re-find #"^\[.*\]" s)))]
-    (parse-construction cnstr)
+    [(const :guard #(boolean (re-find #"^\[.*\]" s)))]
+    (parse-construction const)
 
-    [(xpr :guard #(= "<" (first s)))]
-    (parse-sequence xpr nil)
+    [(expr :guard #(= "<" (first s)))]
+    (parse-sequence expr nil)
 
-    [(cmp :guard #(boolean (re-find #"∘.*:" s)))]
-    (parse-composition cmp)
+    [(compo :guard #(boolean (re-find #"∘.*:" s)))]
+    (parse-composition compo)
+
+    [(inser :guard #(boolean (re-find #"/.*:" s)))]
+    (parse-insertion inser)
 
     [(appli :guard #(boolean (re-find #":" s)))]
     (parse-application appli)

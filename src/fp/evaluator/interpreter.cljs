@@ -101,6 +101,15 @@
 
 (defn evaluate [parsed-map]
   (match [parsed-map]
+    [{:insertion ins}]
+    (let [sqc (get-in ins [:operand :sequence])
+          f (:function ins)]
+      (reduce
+       (fn [acc nxt]
+         (evaluate {:application {:operator f
+                                  :operand {:sequence [acc nxt]}}}))
+       (first sqc) (rest sqc)))
+
     [{:condition cnd}]
     (let [result (evaluate {:composition {:functions (:functions cnd)
                                           :operand (:operand cnd)}})

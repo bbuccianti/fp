@@ -76,4 +76,11 @@
                                 {:string "‾1" :type :constant :val 1}]}}
                   {:string "+" :type :symbol}]
       :operand {:string "3" :type :number :val 3}}}
-    "+ ∘ [id, ‾1]: 3"))
+    "+ ∘ [id, ‾1]: 3"
+
+    {:insertion
+     {:function {:string "+" :type :symbol}
+      :operand {:sequence [{:string "1" :type :number :val 1}
+                           {:string "2" :type :number :val 2}
+                           {:string "3" :type :number :val 3}]}}}
+    "/+:<1,2,3>"))
