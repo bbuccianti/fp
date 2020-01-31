@@ -7,4 +7,5 @@
 (defonce out (r/atom []))
 
 (defonce config (r/atom {:history? false
-                         :menu? false}))
+                         :menu? false
+                         :special-chars? true}))

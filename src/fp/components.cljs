@@ -3,16 +3,15 @@
    [goog.dom :as gdom]
    [reagent.core :as r]
    [fp.semantic :as ui]
-   [fp.components.input :refer [repl]]
+   [fp.components.input :refer [readline]]
    [fp.components.output :refer [screen]]
-   [fp.components.config :refer [toggle-sidebar sidebar]]))
+   [fp.components.config :refer [sidebar]]))
 
 (defn app []
   (let [in (r/atom "")]
     (fn []
       [:> ui/container
        {:id "container"}
-       [toggle-sidebar]
        [sidebar]
        [screen]
-       [repl in]])))
+       [readline in]])))

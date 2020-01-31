@@ -33,8 +33,8 @@
         {:content (:result o)
          :size "huge"}]
        [:> ui/segment
-        {:content (str "→ " (:command o))
-         :size "huge"
+        {:content (str "⇄ " (:command o))
+         :size "big"
          :color "green"
          :inverted true
          :secondary true
