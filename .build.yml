@@ -1,0 +1,22 @@
+image: archlinux
+packages:
+  - nodejs
+  - leiningen
+  - rsync
+sources:
+  - https://git.sr.ht/~bbuccianti/fp
+environment:
+  deploy: bex@buccianti.dev
+secrets:
+  - a1a91ac4-5160-4bc7-8be7-f96ec3a20630
+tasks:
+  - run-tests: |
+      cd fp
+      lein kaocha --no-watch
+  - build: |
+      cd fp
+      lein do clean, cljsbuild once min
+  - deploy: |
+      cd fp
+      sshopts="-o StrictHostKeyChecking=no -p 12345"
+      rsync --rsh="ssh $sshopts" -rP resources ${deploy}:/var/www/buccianti.den/fp/
