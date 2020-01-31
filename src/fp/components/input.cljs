@@ -1,7 +1,6 @@
 (ns fp.components.input
   (:require
    [goog.dom :as gdom]
-   [goog.dom.selection :as gsel]
    [fp.semantic :as ui]
    [fp.state :as state]
    [fp.components.config :refer [toggle-sidebar toggle-specials]]
@@ -28,10 +27,7 @@
         right (subs @in idx)]
     (reset! in (str left ch right))
     (.. input focus)
-    (js/setTimeout
-     (fn []
-       (.setSelectionRange input (inc idx) (inc idx)))
-     25)))
+    (js/setTimeout #(.setSelectionRange input (inc idx) (inc idx)) 25)))
 
 (defn button-char [ch in]
   [:> ui/button
@@ -44,11 +40,13 @@
      {:compact true
       :basic true
       :floated "right"}
-     [button-char "∅" in]
-     [button-char "⊥" in]
      [button-char "∘" in]
+     [button-char "×" in]
+     [button-char "÷" in]
+     [button-char "‾" in]
      [button-char "→" in]
-     [button-char "‾" in]]))
+     [button-char "∅" in]
+     [button-char "⊥" in]]))
 
 (defn readline [in]
   [:> ui/container

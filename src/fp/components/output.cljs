@@ -31,10 +31,11 @@
          :onClick #(handle-visible o)}]
        [:> ui/segment
         {:content (:result o)
-         :size "huge"}]
+         :size "big"}]
        [:> ui/segment
         {:content (str "⇄ " (:command o))
          :size "big"
+         :compact true
          :color "green"
          :inverted true
          :secondary true
