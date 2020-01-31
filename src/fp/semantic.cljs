@@ -14,6 +14,7 @@
 
 (def container        (component "Container"))
 (def button           (component "Button"))
+(def button-group     (component "Button" "Group"))
 (def input            (component "Input"))
 (def segment          (component "Segment"))
 (def segment-group    (component "Segment" "Group"))
@@ -22,3 +23,6 @@
 (def sidebar-pusher   (component "Sidebar" "Pusher"))
 (def icon             (component "Icon"))
 (def checkbox         (component "Checkbox"))
+(def message          (component "Message"))
+(def message-header   (component "Message" "Header"))
+(def message-content  (component "Message" "Content"))
