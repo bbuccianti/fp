@@ -44,6 +44,7 @@
      [button-char "×" in]
      [button-char "÷" in]
      [button-char "‾" in]
+     [button-char "α" in]
      [button-char "→" in]
      [button-char "∅" in]
      [button-char "⊥" in]]))

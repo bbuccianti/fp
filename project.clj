@@ -34,7 +34,7 @@
                 :source-paths ["src"]
                 :compiler {:output-to "resources/public/js/compiled/fp.js"
                            :main fp.core
-                           :optimizations :advanced
+                           :optimizations :simple
                            :pretty-print false}}]}
 
   :figwheel {:css-dirs ["resources/public/css"] ;; watch and update CSS

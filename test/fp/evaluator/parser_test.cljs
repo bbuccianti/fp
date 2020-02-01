@@ -83,4 +83,21 @@
       :operand {:sequence [{:string "1" :type :number :val 1}
                            {:string "2" :type :number :val 2}
                            {:string "3" :type :number :val 3}]}}}
-    "/+:<1,2,3>"))
+    "/+:<1,2,3>"
+
+    {:to-all
+     {:function {:string "1" :type :number :val 1}
+      :operand (parse "<<A,B,C>,<4,5,6>>")}}
+    "α 1 : <<A,B,C>,<4,5,6>>"
+
+    {:composition
+        {:functions [{:to-all {:function {:string "×" :type :symbol}}}
+                     {:string "+" :type :symbol}]
+         :operand (parse "<<1,2>,<2,3>>")}}
+    "+ ∘ α × : <<1,2>,<2,3>>"
+
+    {:composition
+     {:functions [{:to-all {:function {:string "×" :type :symbol}}}
+                  {:insertion {:function {:string "+" :type :symbol}}}]
+      :operand (parse "<<1,2>,<3,4>,<2,3>>")}}
+    "/+ ∘ α×:<<1,2>,<3,4>,<2,3>>"))

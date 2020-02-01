@@ -29,7 +29,7 @@
 (defn replace-brackets [s]
   (-> s (string/replace #"\[" "<") (string/replace #"\]" ">")))
 
-(defn parse-sequence [s flag]
+(defn parse-sequence [s]
   (let [replaced (-> s (string/replace #"<" "[") (string/replace #">" "]"))
         sq (read-string replaced)]
     {:sequence (mapv (comp parse replace-brackets str) sq)}))
@@ -40,9 +40,9 @@
                    :operand (parse (string/trim (second splitted)))}}))
 
 (defn parse-composition [s]
-  (let [splitted (string/split s #":")
-        left (string/split (first splitted) #"∘")
-        right (string/trim (second splitted))]
+  (let [spl (string/split s #":")
+        left (string/split (first spl) #"∘")
+        right (string/trim (second spl))]
     {:composition
      {:functions (rseq (mapv (comp parse string/trim) left))
       :operand (parse right)}}))
@@ -70,28 +70,40 @@
 
 (defn parse-insertion [s]
   (let [spl (string/split s #":")
-        right (string/trim (second spl))
         l (string/split (first spl) #"/| ")
         left (remove empty? l)]
     {:insertion
-     {:function (-> left first string/trim parse)
-      :operand (-> right parse)}}))
+     (into {:function (-> left first string/trim parse)}
+           (if (second spl)
+             {:operand (-> (second spl) string/trim parse)}))}))
+
+(defn parse-big-application [s]
+  (let [spl (string/split s #":")
+        l (string/split (first spl) #"α| ")
+        left (remove empty? l)]
+    {:to-all
+     (into {:function (-> (first left) string/trim parse)}
+           (if (second spl)
+             {:operand (-> (second spl) string/trim parse)}))}))
 
 (defn parse [s]
   (match [s]
     [(condi :guard #(boolean (re-find #"\(.*→.*;.*\).*:" s)))]
     (parse-condition condi)
 
+    [(compo :guard #(boolean (re-find #"∘.*:" s)))]
+    (parse-composition compo)
+
+    [(to-all :guard #(boolean (re-find #"α.*:?" s)))]
+    (parse-big-application to-all)
+
     [(const :guard #(boolean (re-find #"^\[.*\]" s)))]
     (parse-construction const)
 
     [(expr :guard #(= "<" (first s)))]
-    (parse-sequence expr nil)
+    (parse-sequence expr)
 
-    [(compo :guard #(boolean (re-find #"∘.*:" s)))]
-    (parse-composition compo)
-
-    [(inser :guard #(boolean (re-find #"/.*:" s)))]
+    [(inser :guard #(boolean (re-find #"/.*:?" s)))]
     (parse-insertion inser)
 
     [(appli :guard #(boolean (re-find #":" s)))]

@@ -101,6 +101,14 @@
 
 (defn evaluate [parsed-map]
   (match [parsed-map]
+    [{:to-all target}]
+    {:sequence
+     (map
+      (fn [sqc]
+        (evaluate {:application {:operator (:function target)
+                                 :operand sqc}}))
+      (get-in target [:operand :sequence]))}
+
     [{:insertion ins}]
     (let [sqc (get-in ins [:operand :sequence])
           f (:function ins)]
@@ -125,12 +133,21 @@
     [{:composition cmpst}]
     (reduce
      (fn [sqc f]
-       (if (contains? f :construction)
-         (evaluate
-          {:construction {:functions (get-in f [:construction :functions])
-                          :operand sqc}})
-         (evaluate
-          {:application {:operator f :operand sqc}})))
+       (match [f]
+         [{:to-all appli}]
+         (evaluate {:to-all (into appli {:operand sqc})})
+
+         [{:construction constr}]
+         (evaluate {:construction
+                    {:functions (:functions constr)
+                     :operand sqc}})
+         [{:insertion ins}]
+         (evaluate {:insertion
+                    {:function (:function ins)
+                     :operand sqc}})
+
+         [(:or {:type :symbol} {:type :number})]
+         (evaluate {:application {:operator f :operand sqc}})))
      (:operand cmpst) (:functions cmpst))
 
     [{:application appli}]

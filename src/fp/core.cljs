@@ -11,3 +11,5 @@
 
 (defn on-js-reload []
   (mount-app))
+
+(mount-app)
