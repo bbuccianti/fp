@@ -10,14 +10,17 @@
   (match [s]
     [(:or "⊥" "∅")] (if (= "∅" s) :empty :undefined)
     [(:or "<" ">")] (if (= "<" s) :open-seq :close-seq)
+    [(:or "[" "]")] (if (= "[" s) :open-bra :close-bra)
+    [(:or "(" ")")] (if (= "(" s) :open-cond :close-cond)
     [(n :guard str-number?)] :number
+    [(n :guard #(boolean (re-matches #"‾\d+" s)))] :constant
     [(:or "T" "F")] :boolean
     [":"] :application
     ["/"] :insertion
     ["∘"] :composition
     ["α"] :to-all
-    ["×"] :times
-    ["÷"] :division
+    ["→"] :right
+    [";"] :semicolon
     :else :symbol))
 
 (defn- translator [str-obj]
@@ -26,9 +29,7 @@
 
 (defn lex [s]
   (->> (replace s #"," " ")
-       (re-seq #" |[<>]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷]")
+       (re-seq #" |[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷\-→;]|‾\d+")
        (map trim)
        (remove empty?)
        (mapv translator)))
-
-;#" |[0-9.]+|<|>[A-Za-z]+|[⊥∅:,;+-∘α×]"
