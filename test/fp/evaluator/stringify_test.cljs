@@ -3,7 +3,7 @@
    [cljs.test :refer [deftest are]]
    [fp.evaluator.stringify :refer [to-string]]))
 
-(deftest stringys
+#_(deftest stringys
   (are [exp act] (= exp (to-string act))
     "A" {:string "A" :type :symbol}
     "1" {:type :number :val 1}

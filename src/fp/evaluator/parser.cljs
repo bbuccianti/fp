@@ -2,14 +2,12 @@
   (:require
    [clojure.core.match :refer [match]]
    [clojure.string :as string]
-   [cljs.reader :refer [read-string]]))
+   [cljs.reader :refer [read-string]]
+   [fp.evaluator.lexer :refer [lex]]))
 
 (declare parse)
 
-(defn str-number? [s]
-  (not (js/isNaN s)))
-
-(defn parse-object [s]
+#_(defn parse-object [s]
   (match [s]
     [(:or "T" "F")]
     {:type :bool :val (= s "T")}
@@ -32,14 +30,14 @@
 (defn parse-sequence [s]
   (let [replaced (-> s (string/replace #"<" "[") (string/replace #">" "]"))
         sq (read-string replaced)]
-    {:sequence (mapv (comp parse replace-brackets str) sq)}))
+    (mapv (comp parse lex replace-brackets str) sq)))
 
-(defn parse-application [s]
+#_(defn parse-application [s]
   (let [splitted (string/split s #":")]
     {:application {:operator (parse (string/trim (first splitted)))
                    :operand (parse (string/trim (second splitted)))}}))
 
-(defn parse-composition [s]
+#_(defn parse-composition [s]
   (let [spl (string/split s #":")
         left (string/split (first spl) #"∘")
         right (string/trim (second spl))]
@@ -47,7 +45,7 @@
      {:functions (rseq (mapv (comp parse string/trim) left))
       :operand (parse right)}}))
 
-(defn parse-construction [s]
+#_(defn parse-construction [s]
   (let [spl (string/split s #":")
         l (string/replace (first spl) "[" "")
         r (string/replace l "]" "")
@@ -56,7 +54,7 @@
      (into {:functions (mapv (comp parse string/trim) left)}
            (if (second spl) {:operand (parse (string/trim (second spl)))}))}))
 
-(defn parse-condition [s]
+#_(defn parse-condition [s]
   (let [spl (string/split s #":")
         right (string/trim (second spl))
         lspl (string/split (first spl) #"→")
@@ -68,7 +66,7 @@
       :false (-> (second later) string/trim parse)
       :operand (parse right)}}))
 
-(defn parse-insertion [s]
+#_(defn parse-insertion [s]
   (let [spl (string/split s #":")
         l (string/split (first spl) #"/| ")
         left (remove empty? l)]
@@ -77,7 +75,7 @@
            (if (second spl)
              {:operand (-> (second spl) string/trim parse)}))}))
 
-(defn parse-big-application [s]
+#_(defn parse-big-application [s]
   (let [spl (string/split s #":")
         l (string/split (first spl) #"α| ")
         left (remove empty? l)]
@@ -86,7 +84,7 @@
            (if (second spl)
              {:operand (-> (second spl) string/trim parse)}))}))
 
-(defn parse [s]
+#_(defn parse [s]
   (match [s]
     [(condi :guard #(boolean (re-find #"\(.*→.*;.*\).*:" s)))]
     (parse-condition condi)
@@ -110,3 +108,16 @@
     (parse-application appli)
 
     :else (parse-object s)))
+
+(defn parse [lexed-map]
+  (match [lexed-map]
+    [[{:type :undefined}]] :undefined
+    [[{:type :empty}]] :empty
+    [[{:type :boolean :string b}]] {:boolean (= b "T")}
+    [[{:type :symbol :string s}]] {:symbol s}
+    [[{:type :number :string n}]] {:number (js/parseFloat n)}
+
+    [[{:type :open-seq} & r]]
+    (parse-sequence (apply str (interpose "," (map :string lexed-map))))
+
+    :else lexed-map))

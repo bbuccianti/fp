@@ -8,7 +8,6 @@
                  [org.clojure/core.async  "0.4.500"]
                  [org.clojure/core.match "0.3.0"]
                  [reagent "0.9.1"]
-                 [re-frame "0.11.0"]
                  [cljsjs/semantic-ui-react "0.88.1-0"]]
 
   :plugins [[lein-figwheel "0.5.19"]

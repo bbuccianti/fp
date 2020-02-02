@@ -4,7 +4,7 @@
    [fp.evaluator.parser :refer [parse]]
    [fp.evaluator.interpreter :refer [evaluate]]))
 
-(deftest selectors
+#_(deftest selectors
   (are [exp act] (= exp (-> act parse evaluate))
     {:sequence [{:string "A" :type :symbol}
                 {:string "B" :type :symbol}
@@ -24,7 +24,7 @@
     {:sequence [{:string "A" :type :symbol} {:string "B" :type :symbol}]}
     "tlr : <A, B, C>"))
 
-(deftest predicates
+#_(deftest predicates
   (are [exp act] (= (parse exp) (-> act parse evaluate))
     "T"  "atom : 5"
     "F"  "atom : <A, B, C>"
@@ -38,7 +38,7 @@
     "F"  "null : <A, 7>"
     "⊥"  "null : ⊥"))
 
-(deftest arithmetic
+#_(deftest arithmetic
   (are [exp act] (= (parse exp) (-> act parse evaluate))
     "3"   "+ : <1, 2>"
     "⊥"   "+ : <1, A>"
@@ -57,7 +57,7 @@
     "⊥"   "÷ : <1, A>"
     "⊥"   "÷ : <1, 2, 3>"))
 
-(deftest logic
+#_(deftest logic
   (are [exp act] (= (parse exp) (-> act parse evaluate))
     "F"  "and : <T, F>"
     "⊥"  "and : <1, 0>"
@@ -68,7 +68,7 @@
     "T"  "not : F"
     "⊥"  "not : 2"))
 
-(deftest sequences
+#_(deftest sequences
   (are [exp act] (= exp (-> act parse evaluate))
     (parse "⊥")     "length : A"
     {:type :number :val 0} "length : ∅"
@@ -102,7 +102,7 @@
     {:type :empty}        "rotr: ∅"
     (parse "<y>")         "rotr: <y>"))
 
-(deftest functional-forms
+#_(deftest functional-forms
   (are [exp act] (= (parse exp) (-> act parse evaluate))
     "B"                    "1 ∘ tl: <A, B, C>"
     "<<B, C>, <A, B>>"     "[tl, tlr] : <A,B,C>"
