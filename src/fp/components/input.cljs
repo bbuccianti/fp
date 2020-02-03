@@ -47,14 +47,8 @@
      {:compact true
       :basic true
       :floated "right"}
-     [button-char "∘" in]
-     [button-char "×" in]
-     [button-char "÷" in]
-     [button-char "‾" in]
-     [button-char "α" in]
-     [button-char "→" in]
-     [button-char "∅" in]
-     [button-char "⊥" in]]))
+     (for [ch ["∘" "×" "÷" "‾" "α" "→" "∅" "⊥"]]
+       [button-char ch in])]))
 
 (defn readline [in]
   [:> ui/container
