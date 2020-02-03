@@ -58,4 +58,4 @@
   :aliases {"kaocha" ["with-profile" "+kaocha" "run"
                       "-m" "kaocha.runner" "unit-cljs"]}
 
-  :prep-tasks [["v" "cache" "src" "edn"]])
+  :prep-tasks [["v" "cache" "src/fp" "cljs"]])

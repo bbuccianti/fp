@@ -48,6 +48,7 @@
       :basic true
       :floated "right"}
      (for [ch ["∘" "×" "÷" "‾" "α" "→" "∅" "⊥"]]
+       ^{:key ch}
        [button-char ch in])]))
 
 (defn readline [in]
