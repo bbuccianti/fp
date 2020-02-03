@@ -31,6 +31,11 @@
     "1 : <A, B, C>"
 
     {:application
+     {:operators [{:symbol "1r"}]
+      :operands [{:symbol "A"} {:symbol "B"} {:symbol "C"}]}}
+    "1r:<A,B,C>"
+
+    {:application
      {:operators [{:symbol "+"}]
       :operands [{:number 1} {:number 2}]}}
     "+ : <1, 2>"

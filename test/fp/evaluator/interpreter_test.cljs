@@ -1,31 +1,30 @@
 (ns fp.evaluator.interpreter-test
   (:require
    [cljs.test :refer [deftest is are testing]]
+   [fp.evaluator.lexer :refer [lex]]
    [fp.evaluator.parser :refer [parse]]
    [fp.evaluator.interpreter :refer [evaluate]]))
 
-#_(deftest selectors
-  (are [exp act] (= exp (-> act parse evaluate))
-    {:sequence [{:string "A" :type :symbol}
-                {:string "B" :type :symbol}
-                {:string "C" :type :symbol}]}
-    "id : <A, B, C>"
+(deftest selectors
+  (are [exp act] (= exp (-> act lex parse evaluate))
+    [{:symbol "A"} {:symbol "B"} {:symbol "C"}]
+    "id: <A, B, C>"
 
-    {:string "A" :type :symbol} "1 : <A, B, C>"
-    {:string "B" :type :symbol} "2 : <A, B, C>"
-    nil "4 : <A, B, C>"
+    {:symbol "A"} "1 : <A, B, C>"
+    {:symbol "B"} "2 : <A, B, C>"
 
-    nil "4r : <A, B, C>"
-    {:string "C" :type :symbol} "1r : <A, B, C>"
+    nil           "4 : <A, B, C>"
+    {:symbol "C"} "1r : <A, B, C>"
+    nil           "4r : <A, B, C>"
 
-    {:sequence [{:string "B" :type :symbol} {:string "C" :type :symbol}]}
+    [{:symbol "B"} {:symbol "C"}]
     "tl : <A, B, C>"
 
-    {:sequence [{:string "A" :type :symbol} {:string "B" :type :symbol}]}
+    [{:symbol "A"} {:symbol "B"}]
     "tlr : <A, B, C>"))
 
-#_(deftest predicates
-  (are [exp act] (= (parse exp) (-> act parse evaluate))
+(deftest predicates
+  (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
     "T"  "atom : 5"
     "F"  "atom : <A, B, C>"
     "⊥"  "atom : ⊥"
@@ -38,8 +37,8 @@
     "F"  "null : <A, 7>"
     "⊥"  "null : ⊥"))
 
-#_(deftest arithmetic
-  (are [exp act] (= (parse exp) (-> act parse evaluate))
+(deftest arithmetic
+  (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
     "3"   "+ : <1, 2>"
     "⊥"   "+ : <1, A>"
     "⊥"   "+ : <1, 2, 3>"
@@ -57,8 +56,8 @@
     "⊥"   "÷ : <1, A>"
     "⊥"   "÷ : <1, 2, 3>"))
 
-#_(deftest logic
-  (are [exp act] (= (parse exp) (-> act parse evaluate))
+(deftest logic
+  (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
     "F"  "and : <T, F>"
     "⊥"  "and : <1, 0>"
 
@@ -68,39 +67,48 @@
     "T"  "not : F"
     "⊥"  "not : 2"))
 
-#_(deftest sequences
-  (are [exp act] (= exp (-> act parse evaluate))
-    (parse "⊥")     "length : A"
-    {:type :number :val 0} "length : ∅"
-    {:type :number :val 3} "length : <2, A, 7>"
+(deftest sequences
+  (are [exp act] (= exp (-> act lex parse evaluate))
+    :undefined     "length : A"
+    {:number 0}    "length : ∅"
+    {:number 3}    "length : <2, A, 7>"
 
-    {:sequence [{:string "7" :type :number :val 7}
-                {:type :symbol :string "A"}
-                {:string "2" :type :number :val 2}]}
+    [{:number 7} {:symbol "A"} {:number 2}]
     "reverse : <2, A, 7>"
+    :empty     "reverse: ∅"
+    :undefined "reverse: A"
 
-    (parse "⊥")    "trans: A"
-    (parse "<<1, A>, <2, B>, <3, C>>")
+    :undefined    "trans: A"
+    (-> "<<1, A>, <2, B>, <3, C>>" lex parse)
     "trans: <<1,2,3>,<A,B,C>>"
 
-    (parse "<<A, 1>, <A, 2>, <A, 3>>") "distl : <A, <1, 2, 3>>"
+    (-> "<<A, 1>, <A, 2>, <A, 3>>" lex parse)
+    "distl: <A, <1, 2, 3>>"
+    :empty "distl: <y, ∅>"
+    :undefined "distl: A"
 
-    (parse "<<1,A>,<2,A>,<3,A>>") "distr: <<1,2,3>,A>"
+    (-> "<<1,A>,<2,A>,<3,A>>" lex parse)
+    "distr: <<1,2,3>,A>"
+    :empty "distr: <∅, a>"
+    :undefined "distr: B"
 
-    (parse "<<A,B>,C,D>") "apndl: <<A,B>,<C,D>>"
-    (parse "<y>")         "apndl: <y, ∅>"
+    (-> "<<A,B>,C,D>" lex parse) "apndl: <<A,B>,<C,D>>"
+    (-> "<y>" lex parse)         "apndl: <y, ∅>"
+    :undefined                   "apndl: C"
 
-    (parse "<A,B,<C,D>>") "apndr:<<A,B>,<C,D>>"
-    (parse "<y>")         "apndr: <∅, y>"
+    (-> "<A,B,<C,D>>" lex parse) "apndr:<<A,B>,<C,D>>"
+    (-> "<y>" lex parse)         "apndr: <∅, y>"
+    :undefined                   "apndr: D"
 
-    (parse "<B,C,D,A>")   "rotl: <A,B,C,D>"
-    {:type :empty}        "rotl: ∅"
-    (parse "<y>")         "rotl: <y>"
-    (parse "⊥")    "rotl: 1"
+;    (parse "<B,C,D,A>")   "rotl: <A,B,C,D>"
+ ;   {:type :empty}        "rotl: ∅"
+  ;  (parse "<y>")         "rotl: <y>"
+   ; (parse "⊥")    "rotl: 1"
 
-    (parse "<D,A,B,C>")   "rotr: <A,B,C,D>"
-    {:type :empty}        "rotr: ∅"
-    (parse "<y>")         "rotr: <y>"))
+;    (parse "<D,A,B,C>")   "rotr: <A,B,C,D>"
+ ;;   {:type :empty}        "rotr: ∅"
+   ;; (parse "<y>")         "rotr: <y>"
+    ))
 
 #_(deftest functional-forms
   (are [exp act] (= (parse exp) (-> act parse evaluate))

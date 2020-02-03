@@ -1,7 +1,9 @@
 (ns fp.evaluator.interpreter
-  (:require [clojure.core.match :refer [match]]))
+  (:require
+   [clojure.core.match :refer [match]]
+   [clojure.string :refer [replace]]))
 
-(defn evaluate-application [op operand]
+#_(defn evaluate-application [op operand]
   (cond
     ;; SELECTORS
     (= op "tl")
@@ -99,7 +101,7 @@
 
     :else {:type :undefined}))
 
-(defn evaluate [parsed-map]
+#_(defn evaluate [parsed-map]
   (match [parsed-map]
     [{:to-all target}]
     {:sequence
@@ -176,3 +178,115 @@
         :else "Error"))
 
     :else "Error"))
+
+(defn evaluate-application [operator operand]
+  (match [operator operand]
+    [{:number n} _]
+    (get operand (dec n))
+
+    [_ :undefined]
+    :undefined
+
+    [{:symbol op} _]
+    (cond
+      (= "atom" op)
+      {:boolean (not (vector? operand))}
+
+      (= "id" op)
+      operand
+
+      (= "eq" op)
+      (if (= 2 (count operand))
+        {:boolean (apply = operand)}
+        :undefined)
+
+      (= "null" op)
+      {:boolean (= operand :empty)}
+
+      (= "tl" op)
+      (rest operand)
+
+      (= "tlr" op)
+      (-> operand rseq rest vec rseq)
+
+      (boolean (re-matches #"\d+r" op))
+      (let [i (-> op (replace "r" ""))]
+        (get (vec (rseq operand)) (dec (js/parseInt i))))
+
+      (contains? #{"+" "-" "×"} op)
+      (if (and (= 2 (count operand))
+               (every? #(contains? % :number) operand))
+        {:number (apply (case op "+" + "-" - "×" *) (map :number operand))}
+        :undefined)
+
+      (= "÷" op)
+      (if (and (= 2 (count operand))
+               (every? #(contains? % :number) operand)
+               (not= 0 (:number (last operand))))
+        {:number (apply / (map :number operand))}
+        :undefined)
+
+      (contains? #{"and" "or"} op)
+      (if (and (= 2 (count operand))
+               (every? #(contains? % :boolean) operand))
+        {:boolean ((case op "and" every? "or" some)
+                   identity (map :boolean operand))}
+        :undefined)
+
+      (= "not" op)
+      (if (contains? operand :boolean)
+        {:boolean (not (:boolean operand))}
+        :undefined)
+
+      (= "length" op)
+      (if (contains? operand :symbol)
+        :undefined
+        {:number (if (= :empty operand) 0 (count operand))})
+
+      (= "reverse" op)
+      (if (contains? operand :symbol)
+        :undefined
+        (if (= :empty operand) :empty (-> operand rseq vec)))
+
+      (= "trans" op)
+      (if (vector? operand)
+        (apply mapv vector operand)
+        :undefined)
+
+      (= "distl" op)
+      (if (not (vector? operand))
+        :undefined
+        (if (= :empty (second operand))
+          :empty
+          (mapv vector (repeat (first operand)) (second operand))))
+
+      (= "distr" op)
+      (if (not (vector? operand))
+        :undefined
+        (if (= :empty (first operand))
+          :empty
+          (mapv vector (first operand) (repeat (second operand)))))
+
+      (= "apndl" op)
+      (if (not (vector? operand))
+        :undefined
+        (if (= :empty (second operand))
+          [(first operand)]
+          (into [(first operand)] (second operand))))
+
+      (= "apndr" op)
+      (if (not (vector? operand))
+        :undefined
+        (if (= :empty (first operand))
+          [(second operand)]
+          (reverse (into [(second operand)] (reverse (first operand)))))))
+
+    :else "Error"))
+
+(defn evaluate [parsed-map]
+  (match [parsed-map]
+    [{:application appli}]
+    (reduce (fn [acc f] (evaluate-application f acc))
+            (:operands appli) (:operators appli))
+
+    :else parsed-map))
