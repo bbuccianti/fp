@@ -4,6 +4,7 @@
    [fp.semantic :as ui]
    [fp.state :as state]
    [fp.components.config :refer [toggle-sidebar toggle-specials]]
+   [fp.evaluator.lexer :refer [lex]]
    [fp.evaluator.parser :refer [parse]]
    [fp.evaluator.interpreter :refer [evaluate]]
    [fp.evaluator.stringify :refer [to-string]]))
@@ -11,14 +12,10 @@
 (defn handle-action [in]
   (swap! state/out conj {:index (swap! state/counter inc)
                          :command @in
-                         :result (-> @in parse evaluate to-string)
+                         :result (-> @in lex parse evaluate to-string)
                          :visible? false})
   (reset! in "")
   (.. (gdom/getElement "container") (scrollIntoView false)))
-
-(defn handle-key-pressed [e in]
-  (when (= "Enter" (.-key e))
-    (handle-action in)))
 
 (defn insert-char [ch in]
   (let [input (gdom/getElement "input")
@@ -28,6 +25,16 @@
     (reset! in (str left ch right))
     (.. input focus)
     (js/setTimeout #(.setSelectionRange input (inc idx) (inc idx)) 25)))
+
+(defn handle-key-pressed [e in]
+  (if (= "Enter" (.-key e))
+    (handle-action in)))
+
+(defn handle-change [in new-in]
+  (let [input (gdom/getElement "input")
+        idx (.-selectionStart input)]
+    (reset! in new-in)
+    (js/setTimeout #(.setSelectionRange input idx idx) 25)))
 
 (defn button-char [ch in]
   [:> ui/button
@@ -61,7 +68,7 @@
      :size "huge"
      :value @in
      :onKeyPress #(handle-key-pressed % in)
-     :onChange #(reset! in (.-value %2))
+     :onChange #(handle-change in (.-value %2))
      :id "input"
      :action
      {:content "Evaluar"
