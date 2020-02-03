@@ -3,189 +3,16 @@
    [clojure.core.match :refer [match]]
    [clojure.string :refer [replace]]))
 
-#_(defn evaluate-application [op operand]
-  (cond
-    ;; SELECTORS
-    (= op "tl")
-    {:sequence (vec (rest (:sequence operand)))}
-
-    (= op "tlr")
-    {:sequence (-> (:sequence operand) reverse rest reverse vec)}
-
-    (= op "id")
-    operand
-
-    ;; PREDICATES
-    (= op "atom")
-    {:type :bool :val (not (contains? operand :sequence))}
-
-    (and (= op "eq") (= 2 (count (:sequence operand))))
-    {:type :bool :val (apply = (map :string (:sequence operand)))}
-
-    (= op "null")
-    {:type :bool :val (= (:type operand) :empty)}
-
-    ;; ARITHMETICS
-    (and (or (= op "+") (= op "-") (= op "×"))
-         (= 2 (count (:sequence operand)))
-         (every? (partial = :number) (map :type (:sequence operand))))
-    (let [val (apply (case op "+" + "-" - "×" *)
-                     (map :val (:sequence operand)))]
-      {:type :number :val val :string (str val)})
-
-    (and (= op "÷") (= 2 (count (:sequence operand)))
-         (every? (partial = :number) (map :type (:sequence operand)))
-         (not= 0 (:val (last (:sequence operand)))))
-    (let [val (apply / (map :val (:sequence operand)))]
-      {:type :number :val val :string (str val)})
-
-    ;; LOGIC
-    (and (or (= op "and") (= op "or"))
-         (= 2 (count (:sequence operand)))
-         (every? (partial = :bool) (mapv :type (:sequence operand))))
-    {:type :bool
-     :val ((case op "and" every? "or" some)
-           identity (mapv :val (:sequence operand)))}
-
-    (and (= op "not") (= :bool (:type operand)))
-    {:type :bool :val (not (:val operand))}
-
-    ;; SEQUENCES
-    (and (= op "length") (not= :symbol (:type operand)))
-    {:type :number
-     :val (if (= (:type operand) :empty)
-            0
-            (count (:sequence operand)))}
-
-    (and (= op "reverse") (:sequence operand))
-    {:sequence (reverse (:sequence operand))}
-
-    (and (= op "trans") (:sequence operand))
-    (let [v (map :sequence (:sequence operand))]
-      {:sequence (mapv #(into {} {:sequence %})
-                       (apply mapv vector v))})
-
-    (and (= op "distl") (:sequence operand))
-    (let [left (first (:sequence operand))
-          right (:sequence (second (:sequence operand)))]
-      {:sequence (mapv #(into {} {:sequence %})
-                       (mapv vector (repeat left) right))})
-
-    (and (= op "distr") (:sequence operand))
-    (let [left (:sequence (first (:sequence operand)))
-          right (second (:sequence operand))]
-      {:sequence (mapv #(into {} {:sequence %})
-                       (mapv vector left (repeat right)))})
-
-    (= op "apndl")
-    (let [left (first (:sequence operand))
-          right (:sequence (second (:sequence operand)))]
-      {:sequence (into [left] right)})
-
-    (= op "apndr")
-    (let [left (:sequence (first (:sequence operand)))
-          right (second (:sequence operand))]
-      {:sequence (reverse (into [right] (reverse left)))})
-
-    (and (= op "rotl") (or (= :empty (:type operand)) (:sequence operand)))
-    (if (= :empty (:type operand))
-      {:type :empty}
-      {:sequence (conj (vec (rest (:sequence operand)))
-                       (first (:sequence operand)))})
-
-    (and (= op "rotr") (or (= :empty (:type operand)) (:sequence operand)))
-    (if (= :empty (:type operand))
-      {:type :empty}
-      {:sequence (into [(last (:sequence operand))]
-                       (butlast (:sequence operand)))})
-
-    :else {:type :undefined}))
-
-#_(defn evaluate [parsed-map]
-  (match [parsed-map]
-    [{:to-all target}]
-    {:sequence
-     (map
-      (fn [sqc]
-        (evaluate {:application {:operator (:function target)
-                                 :operand sqc}}))
-      (get-in target [:operand :sequence]))}
-
-    [{:insertion ins}]
-    (let [sqc (get-in ins [:operand :sequence])
-          f (:function ins)]
-      (reduce
-       (fn [acc nxt]
-         (evaluate {:application {:operator f
-                                  :operand {:sequence [acc nxt]}}}))
-       (first sqc) (rest sqc)))
-
-    [{:condition cnd}]
-    (let [result (evaluate {:composition {:functions (:functions cnd)
-                                          :operand (:operand cnd)}})
-          op (if (:val result) (:true cnd) (:false cnd))]
-      (evaluate {:application {:operator op :operand (:operand cnd)}}))
-
-    [{:construction cnst}]
-    {:sequence
-     (mapv (fn [f o]
-             (evaluate {:application {:operator f :operand o}}))
-           (:functions cnst) (repeat (:operand cnst)))}
-
-    [{:composition cmpst}]
-    (reduce
-     (fn [sqc f]
-       (match [f]
-         [{:to-all appli}]
-         (evaluate {:to-all (into appli {:operand sqc})})
-
-         [{:construction constr}]
-         (evaluate {:construction
-                    {:functions (:functions constr)
-                     :operand sqc}})
-         [{:insertion ins}]
-         (evaluate {:insertion
-                    {:function (:function ins)
-                     :operand sqc}})
-
-         [(:or {:type :symbol} {:type :number})]
-         (evaluate {:application {:operator f :operand sqc}})))
-     (:operand cmpst) (:functions cmpst))
-
-    [{:application appli}]
-    (let [operator (get appli :operator)
-          operand (get appli :operand)]
-      (match [operator operand]
-        [_ {:type :undefined}]
-        {:type :undefined}
-
-        [{:type :number} _]
-        (get (:sequence operand) (dec (:val operator)))
-
-        [(n :guard #(boolean (re-matches #"\dr" (:string operator)))) _]
-        (let [vctr (-> operand :sequence reverse vec)
-              i (-> operator :string first js/parseInt)]
-          (get vctr (dec i)))
-
-        [{:type :symbol :string op} _]
-        (evaluate-application op operand)
-
-        [{:type :constant} _]
-        {:string (str (:val operator))
-         :type :number
-         :val (:val operator)}
-
-        :else "Error"))
-
-    :else "Error"))
-
-(defn evaluate-application [operator operand]
+(defn operify [operator operand]
   (match [operator operand]
+    [_ :undefined]
+    :undefined
+
     [{:number n} _]
     (get operand (dec n))
 
-    [_ :undefined]
-    :undefined
+    [{:constant n} _]
+    {:number n}
 
     [{:symbol op} _]
     (cond
@@ -204,10 +31,10 @@
       {:boolean (= operand :empty)}
 
       (= "tl" op)
-      (rest operand)
+      (-> operand rest vec)
 
       (= "tlr" op)
-      (-> operand rseq rest vec rseq)
+      (-> operand rseq rest reverse vec)
 
       (boolean (re-matches #"\d+r" op))
       (let [i (-> op (replace "r" ""))]
@@ -279,14 +106,42 @@
         :undefined
         (if (= :empty (first operand))
           [(second operand)]
-          (reverse (into [(second operand)] (reverse (first operand)))))))
+          (reverse (into [(second operand)] (reverse (first operand))))))
+
+      (= "rotl" op)
+      (if (not (vector? operand))
+        (if (= :empty operand) :empty :undefined)
+        (conj (vec (rest operand)) (first operand)))
+
+      (= "rotr" op)
+      (if (not (vector? operand))
+        (if (= :empty operand) :empty :undefined)
+        (into (vector (last operand)) (butlast operand))))
+
+    [{:composition compo} _]
+    (reduce (fn [acc f] (operify f acc)) operand compo)
+
+    [{:construction constr} _]
+    (mapv (fn [f sqc] (operify f sqc)) constr (repeat operand))
+
+    [{:insertion inser} _]
+    (reduce (fn [acc more]
+              (operify (first inser) [acc more]))
+            (first operand) (rest operand))
+
+    [{:to-all f} _]
+    (mapv (fn [op operand]
+            (operify op operand))
+          (repeat (first f)) operand)
+
+    [{:condition condi :true t :false f} _]
+    (let [x (operify (first condi) operand)
+          op (if (:boolean x) t f)]
+      (operify op operand))
 
     :else "Error"))
 
 (defn evaluate [parsed-map]
-  (match [parsed-map]
-    [{:application appli}]
-    (reduce (fn [acc f] (evaluate-application f acc))
-            (:operands appli) (:operators appli))
-
-    :else parsed-map))
+  (let [operators (get-in parsed-map [:application :operators])
+        operands (get-in parsed-map [:application :operands])]
+    (reduce (fn [acc f] (operify f acc)) operands operators)))
