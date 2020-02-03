@@ -7,7 +7,9 @@
   (match [obj]
     [(:or :undefined :empty)] (if (= :empty obj) "∅" "⊥")
     [{:symbol s}] s
-    [{:number n}] (str n)
+    [{:number n}]
+    (let [x (.toFixed (js/parseFloat n) 2)]
+      (if (.endsWith (str x) ".00") (str (js/parseInt x)) (str x)))
     [{:boolean b}] (if b "T" "F")
     [(sqc :guard vector?)]
     (if (= (count sqc) 0)

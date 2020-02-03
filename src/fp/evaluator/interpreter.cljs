@@ -3,7 +3,7 @@
    [clojure.core.match :refer [match]]
    [clojure.string :refer [replace]]))
 
-(defn operify [operator operand]
+(defn invoke [operator operand]
   (match [operator operand]
     [_ :undefined]
     :undefined
@@ -119,29 +119,28 @@
         (into (vector (last operand)) (butlast operand))))
 
     [{:composition compo} _]
-    (reduce (fn [acc f] (operify f acc)) operand compo)
+    (reduce (fn [acc f] (invoke f acc)) operand compo)
 
     [{:construction constr} _]
-    (mapv (fn [f sqc] (operify f sqc)) constr (repeat operand))
+    (mapv (fn [f sqc] (invoke f sqc)) constr (repeat operand))
 
     [{:insertion inser} _]
     (reduce (fn [acc more]
-              (operify (first inser) [acc more]))
+              (invoke (first inser) [acc more]))
             (first operand) (rest operand))
 
     [{:to-all f} _]
     (mapv (fn [op operand]
-            (operify op operand))
+            (invoke op operand))
           (repeat (first f)) operand)
 
     [{:condition condi :true t :false f} _]
-    (let [x (operify (first condi) operand)
-          op (if (:boolean x) t f)]
-      (operify op operand))
+    (let [x (invoke (first condi) operand)]
+      (invoke (if (:boolean x) t f) operand))
 
     :else "Error"))
 
 (defn evaluate [parsed-map]
   (let [operators (get-in parsed-map [:application :operators])
         operands (get-in parsed-map [:application :operands])]
-    (reduce (fn [acc f] (operify f acc)) operands operators)))
+    (reduce (fn [acc f] (invoke f acc)) operands operators)))
