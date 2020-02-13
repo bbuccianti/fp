@@ -1,2 +1,0 @@
-(ns fp.evaluator.core)
-

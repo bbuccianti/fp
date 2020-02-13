@@ -1,5 +1,6 @@
 (ns fp.components.output
   (:require
+   [clojure.string :refer [split]]
    [fp.semantic :as ui]
    [fp.state :as state]))
 
@@ -11,6 +12,19 @@
   (if (:history? @state/config)
     (if (:visible? o) "hidden" "show")
     (if (:visible? o) "show" "hidden")))
+
+(defn fix-overline [s]
+  (if (re-matches #".*‾\d+.*" s)
+    (let [constants (re-seq #"‾\d+" s)
+          spl (split s #"‾\d+")]
+      (butlast
+       (interleave spl
+                   (cycle
+                    (map (fn [c]
+                           [:span {:style {:textDecoration "overline"}}
+                            (rest c)])
+                         constants)))))
+    s))
 
 (defn screen []
   [:> ui/container
@@ -33,10 +47,10 @@
         {:content (:result o)
          :size "big"}]
        [:> ui/segment
-        {:content (str "⇄ " (:command o))
-         :size "big"
+        {:size "big"
          :compact true
          :color "green"
          :inverted true
          :secondary true
-         :style {:visibility (visible? o)}}]]))])
+         :style {:visibility (visible? o)}}
+        (fix-overline (str "⇄ " (:command o)))]]))])
