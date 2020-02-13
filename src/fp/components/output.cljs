@@ -13,17 +13,14 @@
     (if (:visible? o) "hidden" "show")
     (if (:visible? o) "show" "hidden")))
 
+(defn decoration [constant]
+  [:span {:style {:textDecoration "overline"}} (rest constant)])
+
 (defn fix-overline [s]
   (if (re-matches #".*‾\d+.*" s)
-    (let [constants (re-seq #"‾\d+" s)
-          spl (split s #"‾\d+")]
-      (butlast
-       (interleave spl
-                   (cycle
-                    (map (fn [c]
-                           [:span {:style {:textDecoration "overline"}}
-                            (rest c)])
-                         constants)))))
+    (butlast
+     (interleave (split s #"‾\d+")
+                 (cycle (map decoration (re-seq #"‾\d+" s)))))
     s))
 
 (defn screen []
