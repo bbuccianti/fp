@@ -23,8 +23,7 @@
     [[{:type :symbol :string s}]] {:symbol s}
     [[{:type :number :string n}]] {:number (js/parseFloat n)}
     [[{:type :constant :string s}]]
-    (let [n (string/replace s "‾" "")]
-      {:constant (js/parseFloat n)})
+    {:constant (js/parseFloat (string/replace s "‾" ""))}
 
     [[{:type :open-seq} & r]]
     (parse-sequence (apply str (interpose "," (map :string lexed-map))))
@@ -36,8 +35,8 @@
        {:operators (-> left vec parse vector)
         :operands (-> right vec parse)}})
 
-    [[{:type :open-cond} & r]]
-    (let [parts (partition-by #(= :right (:type %)) (butlast r))
+    [(condi :guard #(some #{:semicolon} (map :type lexed-map)))]
+    (let [parts (partition-by #(= :right (:type %)) (butlast (rest condi)))
           [left _ right] parts
           [t _ f] (partition-by #(= :semicolon (:type %)) right)]
       {:condition [(parse left)]
@@ -48,6 +47,9 @@
     (let [parts (partition-by #(= :composition (:type %)) compo)
           clean (remove #(= :composition (:type (first %))) parts)]
       {:composition (rseq (mapv (comp parse vec) clean))})
+
+    [[{:type :open-cond} {:type :symbol :string "bu"} & r]]
+    {:bu (mapv (comp parse vector) (butlast r))}
 
     [[{:type :open-bra} & r]]
     {:construction (mapv (comp parse vector) (butlast r))}

@@ -119,3 +119,9 @@
     "<A,4>"                "α 1 : <<A,B,C>,<4,5,6>>"
     "8"                    "+ ∘ α × : <<1,2>,<2,3>>"
     "20"                   "/+ ∘ α×:<<1,2>,<3,4>,<2,3>>"))
+
+(deftest binary-to-unary
+  (are [exp act] (= exp (-> act lex parse evaluate))
+    {:number -1}   "(bu - 2): 3"
+    {:number -10}  "(bu - 10): 20"
+    {:number 3}    "(bu ÷ 18) ∘ (bu + 2): 4"))

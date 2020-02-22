@@ -138,6 +138,9 @@
     (let [x (invoke (first condi) operand)]
       (invoke (if (:boolean x) t f) operand))
 
+    [{:bu bu} _]
+    (invoke (first bu) [(second bu) operand])
+
     :else "Error"))
 
 (defn evaluate [parsed-map]

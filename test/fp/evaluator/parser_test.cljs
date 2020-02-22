@@ -95,4 +95,16 @@
         [{:to-all [{:symbol "×"}]}
          {:insertion [{:symbol "+"}]}]}]
       :operands (parse (lex "<<1,2>,<3,4>,<2,3>>"))}}
-    "/+ ∘ α×:<<1,2>,<3,4>,<2,3>>"))
+    "/+ ∘ α×:<<1,2>,<3,4>,<2,3>>"
+
+    {:application
+     {:operators [{:bu [{:symbol "+"} {:number 1}]}]
+      :operands {:number 2}}}
+    "(bu + 1): 2"
+
+    {:application
+     {:operators [{:composition
+                   [{:bu [{:symbol "+"} {:number 2}]}
+                    {:bu [{:symbol "÷"} {:number 2}]}]}]
+      :operands {:number 4}}}
+    "(bu ÷ 2) ∘ (bu + 2): 4"))
