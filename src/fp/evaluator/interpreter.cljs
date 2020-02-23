@@ -31,10 +31,12 @@
       {:boolean (= operand :empty)}
 
       (= "tl" op)
-      (-> operand rest vec)
+      (let [res (-> operand rest vec)]
+        (if (empty? res) :empty res))
 
       (= "tlr" op)
-      (-> operand rseq rest reverse vec)
+      (let [res (-> operand rseq rest reverse vec)]
+        (if (empty? res) :empty res))
 
       (boolean (re-matches #"\d+r" op))
       (let [i (-> op (replace "r" ""))]
@@ -140,6 +142,12 @@
 
     [{:bu bu} _]
     (invoke (first bu) [(second bu) operand])
+
+    [{:while w} _]
+    (loop [target operand]
+      (if (:boolean (invoke (:predicate w) target))
+        (recur (invoke (:function w) target))
+        target))
 
     :else "Error"))
 

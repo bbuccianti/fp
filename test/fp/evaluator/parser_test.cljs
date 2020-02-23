@@ -107,4 +107,12 @@
                    [{:bu [{:symbol "+"} {:number 2}]}
                     {:bu [{:symbol "÷"} {:number 2}]}]}]
       :operands {:number 4}}}
-    "(bu ÷ 2) ∘ (bu + 2): 4"))
+    "(bu ÷ 2) ∘ (bu + 2): 4"
+
+    {:application
+     {:operators [{:while {:predicate {:composition [{:symbol "tl"}
+                                                     {:symbol "null"}
+                                                     {:symbol "not"}]}
+                           :function {:symbol "tl"}}}]
+      :operands [{:symbol "A"} {:symbol "B"} {:symbol "H"}]}}
+    "(while (not ∘ null ∘ tl) tl): <A,B,H>"))

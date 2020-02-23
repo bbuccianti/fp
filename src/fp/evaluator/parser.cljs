@@ -43,6 +43,12 @@
        :true (-> t vec parse)
        :false (-> f vec parse)})
 
+    [[{:type :open-cond} {:type :symbol :string "while"} & r]]
+    (let [elements (butlast r)]
+      {:while {:predicate (-> r butlast butlast butlast rest
+                              vec parse)
+               :function (-> r butlast last vector parse)}})
+
     [(compo :guard #(some #{:composition} (map :type lexed-map)))]
     (let [parts (partition-by #(= :composition (:type %)) compo)
           clean (remove #(= :composition (:type (first %))) parts)]

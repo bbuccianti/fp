@@ -20,8 +20,14 @@
     [{:symbol "B"} {:symbol "C"}]
     "tl : <A, B, C>"
 
+    :empty
+    "tl: <A>"
+
     [{:symbol "A"} {:symbol "B"}]
-    "tlr : <A, B, C>"))
+    "tlr : <A, B, C>"
+
+    :empty
+    "tlr: <A>"))
 
 (deftest predicates
   (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
@@ -35,7 +41,9 @@
 
     "T"  "null : ∅"
     "F"  "null : <A, 7>"
-    "⊥"  "null : ⊥"))
+    "⊥"  "null : ⊥"
+
+    "T"  "null ∘ tl: <H>"))
 
 (deftest arithmetic
   (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
@@ -118,7 +126,8 @@
     "6"                    "/+:<1,2,3>"
     "<A,4>"                "α 1 : <<A,B,C>,<4,5,6>>"
     "8"                    "+ ∘ α × : <<1,2>,<2,3>>"
-    "20"                   "/+ ∘ α×:<<1,2>,<3,4>,<2,3>>"))
+    "20"                   "/+ ∘ α×:<<1,2>,<3,4>,<2,3>>"
+    "<H>"                  "(while (not ∘ null ∘ tl) tl): <A,B,H>"))
 
 (deftest binary-to-unary
   (are [exp act] (= exp (-> act lex parse evaluate))
