@@ -10,4 +10,5 @@
 
 (defonce config (r/atom {:history? true
                          :menu? false
-                         :special-chars? true}))
+                         :special-chars? true
+                         :index 0}))

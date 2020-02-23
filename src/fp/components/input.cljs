@@ -9,12 +9,19 @@
    [fp.evaluator.interpreter :refer [evaluate]]
    [fp.evaluator.stringify :refer [to-string]]))
 
+(defn wrapped-inc [n]
+  (min (inc n) (count @state/out)))
+
+(defn wrapped-dec [n]
+  (if (< (dec n) 0) 0 (dec n)))
+
 (defn handle-action [in]
   (let [new-input {:index (swap! state/counter inc)
                    :command @in
                    :result (-> @in lex parse evaluate to-string)
                    :visible? false}]
     (swap! state/out conj new-input)
+    (swap! state/config update :index wrapped-inc)
     (reset! in "")
     (.. (gdom/getElement "container") (scrollIntoView false))))
 
@@ -36,6 +43,18 @@
         idx (.-selectionStart input)]
     (reset! in new-in)
     (js/setTimeout #(.setSelectionRange input idx idx) 25)))
+
+(defn swap-config-input [f]
+  (swap! state/config update :index f)
+  (if-let [target (get @state/out (:index @state/config))]
+    (reset! state/input (:command target))
+    (reset! state/input "")))
+
+(defn handle-history-changes [key]
+  (case key
+    "ArrowUp" (swap-config-input wrapped-dec)
+    "ArrowDown" (swap-config-input wrapped-inc)
+    nil))
 
 (defn button-char [ch in]
   [:> ui/button
@@ -65,6 +84,7 @@
      :size "huge"
      :value @in
      :onKeyPress #(handle-key-pressed % in)
+     :onKeyUp #(handle-history-changes (.-key %))
      :onChange #(handle-change in (.-value %2))
      :id "input"
      :action
