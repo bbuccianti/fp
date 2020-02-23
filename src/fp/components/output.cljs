@@ -4,9 +4,8 @@
    [fp.semantic :as ui]
    [fp.state :as state]))
 
-(defn handle-visible [e]
-  (let [new-element (update e :visible? not)]
-    (swap! state/out assoc (dec (:index e)) new-element)))
+(defn handle-copy [el]
+  (reset! state/input (:command el)))
 
 (defn visible? [o]
   (if (:history? @state/config)
@@ -34,12 +33,6 @@
       ^{:key (gensym "out")}
       [:> ui/segment-group
        {:horizontal true}
-       [:> ui/button
-        {:content (:index o)
-         :attached "left"
-         :color "facebook"
-         :size "small"
-         :onClick #(handle-visible o)}]
        [:> ui/segment
         {:content (:result o)
          :size "big"}]
@@ -50,4 +43,16 @@
          :inverted true
          :secondary true
          :style {:visibility (visible? o)}}
-        (fix-overline (str "⇄ " (:command o)))]]))])
+        (fix-overline (str "⇄ " (:command o)))]
+       [:> ui/button
+        {:animated "fade"
+         :attached "right"
+         :color "facebook"
+         :onClick #(handle-copy o)}
+        [:> ui/button-content
+         {:visible true}
+         (:index o)]
+        [:> ui/button-content
+         {:hidden true
+          :style {:padding-left "1rem"}}
+         [:> ui/icon {:name "copy"}]]]]))])

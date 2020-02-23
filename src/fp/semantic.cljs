@@ -15,6 +15,7 @@
 (def container        (component "Container"))
 (def button           (component "Button"))
 (def button-group     (component "Button" "Group"))
+(def button-content   (component "Button" "Content"))
 (def input            (component "Input"))
 (def segment          (component "Segment"))
 (def segment-group    (component "Segment" "Group"))

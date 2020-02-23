@@ -10,12 +10,13 @@
    [fp.evaluator.stringify :refer [to-string]]))
 
 (defn handle-action [in]
-  (swap! state/out conj {:index (swap! state/counter inc)
-                         :command @in
-                         :result (-> @in lex parse evaluate to-string)
-                         :visible? false})
-  (reset! in "")
-  (.. (gdom/getElement "container") (scrollIntoView false)))
+  (let [new-input {:index (swap! state/counter inc)
+                   :command @in
+                   :result (-> @in lex parse evaluate to-string)
+                   :visible? false}]
+    (swap! state/out conj new-input)
+    (reset! in "")
+    (.. (gdom/getElement "container") (scrollIntoView false))))
 
 (defn insert-char [ch in]
   (let [input (gdom/getElement "input")
@@ -56,7 +57,8 @@
    {:id "input-bar"
     :style {:position "sticky"
             :bottom "0"
-            :padding-bottom "10px"}}
+            :padding-bottom "10px"
+            :zIndex 99}}
    [:> ui/input
     {:placeholder "Insertá una expresión!"
      :fluid true
