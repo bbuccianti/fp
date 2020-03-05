@@ -7,11 +7,6 @@
 (defn handle-copy [el]
   (reset! state/input (:command el)))
 
-(defn visible? [o]
-  (if (:history? @state/config)
-    (if (:visible? o) "hidden" "show")
-    (if (:visible? o) "show" "hidden")))
-
 (defn decoration [constant]
   ^{:key (gensym "span")}
   [:span {:style {:textDecoration "overline"}} (rest constant)])
@@ -43,7 +38,7 @@
          :color "green"
          :inverted true
          :secondary true
-         :style {:visibility (visible? o)}}
+         :style {:visibility (if (:history? @state/config) "show" "hidden")}}
         (fix-overline (str "⇄ " (:command o)))]
        [:> ui/button
         {:animated "fade"
@@ -56,4 +51,13 @@
         [:> ui/button-content
          {:hidden true
           :style {:padding-left "1rem"}}
-         [:> ui/icon {:name "copy"}]]]]))])
+         [:> ui/icon {:name "copy"}]]]]))
+   [:> ui/button
+    {:attach "bottom"
+     :compact true
+     :content "Reportá errores!"
+     :color "blue"
+     :floated "right"
+     :as "a"
+     :target "_blank"
+     :href "https://todo.sr.ht/~bbuccianti/fp"}]])

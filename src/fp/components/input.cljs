@@ -13,13 +13,12 @@
   (min (inc n) (count @state/out)))
 
 (defn wrapped-dec [n]
-  (if (< (dec n) 0) 0 (dec n)))
+  (if (> 0 (dec n)) (count @state/out) (dec n)))
 
 (defn handle-action [in]
-  (let [new-input {:index (swap! state/counter inc)
+  (let [new-input {:index (count @state/out)
                    :command @in
-                   :result (-> @in lex parse evaluate to-string)
-                   :visible? false}]
+                   :result (-> @in lex parse evaluate to-string)}]
     (swap! state/out conj new-input)
     (swap! state/config update :index wrapped-inc)
     (reset! in "")
@@ -82,6 +81,7 @@
     {:placeholder "Insertá una expresión!"
      :fluid true
      :size "huge"
+     :input {:autocomplete "off"}
      :value @in
      :onKeyPress #(handle-key-pressed % in)
      :onKeyUp #(handle-history-changes (.-key %))
