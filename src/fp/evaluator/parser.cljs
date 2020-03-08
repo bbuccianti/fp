@@ -1,17 +1,17 @@
 (ns fp.evaluator.parser
   (:require
    [clojure.core.match :refer [match]]
-   [clojure.string :as string]
+   [clojure.string :refer [replace]]
    [cljs.reader :refer [read-string]]
    [fp.evaluator.lexer :refer [lex]]))
 
 (declare parse)
 
 (defn replace-brackets [s]
-  (-> s (string/replace #"\[" "<") (string/replace #"\]" ">")))
+  (-> s (replace #"\[" "<") (replace #"\]" ">")))
 
 (defn parse-sequence [s]
-  (let [replaced (-> s (string/replace #"<" "[") (string/replace #">" "]"))
+  (let [replaced (-> s (replace #"<" "[") (replace #">" "]"))
         readed (read-string replaced)]
     (mapv (comp parse lex replace-brackets str) readed)))
 
