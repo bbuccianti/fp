@@ -1,7 +1,7 @@
 (ns fp.evaluator.parser-test
   (:require
    [cljs.test :refer [deftest is are testing]]
-   [fp.evaluator.parser :refer [parse]]
+   [fp.evaluator.parser :refer [parse group-operators]]
    [fp.evaluator.lexer :refer [lex]]))
 
 (deftest objects
@@ -67,9 +67,8 @@
 
     {:application
      {:operators
-      [{:composition
-        [{:construction [{:symbol "id"} {:constant 1}]}
-         {:symbol "+"}]}]
+      [{:composition [{:construction [{:symbol "id"} {:constant 1}]}
+                      {:symbol "+"}]}]
       :operands {:number 3}}}
     "+ ∘ [id, ‾1]: 3"
 
@@ -116,3 +115,44 @@
                            :function {:symbol "tl"}}}]
       :operands [{:symbol "A"} {:symbol "B"} {:symbol "H"}]}}
     "(while (not ∘ null ∘ tl) tl): <A,B,H>"))
+
+#_(deftest very-difficult-parsing
+  (are [exp act] (= exp (-> act lex parse))
+    {:application
+     {:operators [{:construction [{:composition
+                                   [{:bu [{:symbol "+"} {:number 2}]}
+                                    {:symbol "id"}]}
+                                  {:symbol "id"}]}]}
+     :operands {:number 3}}
+    "[(bu + 2) ∘ id, id]: 3"
+
+    #_{:application
+     {:operators [{:construction [{:composition
+                                   [{:bu [{:symbol "+"} {:number 2}]}
+                                    {:symbol "id"}]}
+                                  {:symbol "id"}]}]
+      :operands {:number 3}}}
+    #_"+ ∘ [(bu + 2) ∘ id, id]: 3"))
+
+#_(deftest grouping-operators
+  (are [exp act] (= exp (->> act lex group-operators))
+    [(lex "[(bu + 2) ∘ id, id]")]
+    "[(bu + 2) ∘ id, id]"
+
+    [(lex "/-")
+     {:string "∘" :type :composition}
+     {:string "+" :type :symbol}
+     {:string "∘" :type :composition}
+     (lex "α ×")]
+    "/- ∘ + ∘ α ×"
+
+    [(lex "(not ∘ atom → 1; id)")]
+    "(not ∘ atom → 1; id)"
+
+    [(lex "(while (not ∘ null ∘ tl) tl)")]
+    "(while (not ∘ null ∘ tl) tl)"
+
+    [(lex "(bu ÷ 2)")
+     {:string "∘" :type :composition}
+     (lex "(bu + 2)")]
+    "(bu ÷ 2) ∘ (bu + 2)"))

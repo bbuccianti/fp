@@ -20,6 +20,7 @@
     ["∘"] :composition
     ["α"] :to-all
     ["→"] :right
+    [","] :comma
     [";"] :semicolon
     :else :symbol))
 
@@ -28,8 +29,7 @@
    :type (translate str-obj)})
 
 (defn lex [s]
-  (->> (replace s #"," " ")
-       (re-seq #" |[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷\-→;]|‾-?\d+")
+  (->> (re-seq #" |[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷\-→;,]|‾-?\d+" s)
        (map trim)
        (remove empty?)
        (mapv translator)))
