@@ -97,7 +97,8 @@
           clean (remove #(= :composition (:type (first %))) parts)]
       {:composition (vec (rseq (mapv (comp parse vec) clean)))})
 
-    [[[{:type :open-cond} {:type :symbol :string "bu"} & r]]]
+    [(:or [[{:type :open-cond} {:type :symbol :string "bu"} & r]]
+          [{:type :open-cond} {:type :symbol :string "bu"} & r])]
     {:bu (mapv (comp parse vector) (butlast r))}
 
     [[[{:type :open-bra} & r]]]

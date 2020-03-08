@@ -134,3 +134,7 @@
     {:number -1}   "(bu - 2): 3"
     {:number -10}  "(bu - 10): 20"
     {:number 3}    "(bu ÷ 18) ∘ (bu + 2): 4"))
+
+(deftest very-difficult
+  (are [exp act] (= exp (-> act lex parse evaluate))
+    {:number 8} "+ ∘ [(bu + 2) ∘ id, id]: 3"))

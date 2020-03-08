@@ -116,25 +116,27 @@
       :operands [{:symbol "A"} {:symbol "B"} {:symbol "H"}]}}
     "(while (not ∘ null ∘ tl) tl): <A,B,H>"))
 
-#_(deftest very-difficult-parsing
+(deftest very-difficult-parsing
   (are [exp act] (= exp (-> act lex parse))
     {:application
      {:operators [{:construction [{:composition
-                                   [{:bu [{:symbol "+"} {:number 2}]}
-                                    {:symbol "id"}]}
-                                  {:symbol "id"}]}]}
-     :operands {:number 3}}
-    "[(bu + 2) ∘ id, id]: 3"
-
-    #_{:application
-     {:operators [{:construction [{:composition
-                                   [{:bu [{:symbol "+"} {:number 2}]}
-                                    {:symbol "id"}]}
+                                   [{:symbol "id"}
+                                    {:bu [{:symbol "+"} {:number 2}]}]}
                                   {:symbol "id"}]}]
       :operands {:number 3}}}
-    #_"+ ∘ [(bu + 2) ∘ id, id]: 3"))
+    "[(bu + 2) ∘ id, id]: 3"
 
-#_(deftest grouping-operators
+    {:application
+     {:operators
+      [{:composition [{:construction [{:composition
+                                   [{:symbol "id"}
+                                    {:bu [{:symbol "+"} {:number 2}]}]}
+                                      {:symbol "id"}]}
+                      {:symbol "+"}]}]
+      :operands {:number 3}}}
+    "+ ∘ [(bu + 2) ∘ id, id]: 3"))
+
+(deftest grouping-operators
   (are [exp act] (= exp (->> act lex group-operators))
     [(lex "[(bu + 2) ∘ id, id]")]
     "[(bu + 2) ∘ id, id]"
