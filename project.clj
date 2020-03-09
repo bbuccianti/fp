@@ -1,4 +1,4 @@
-(defproject fp :lein-v
+(defproject fp "0.4.0"
   :license {:name "MIT"}
 
   :min-lein-version "2.9.1"
@@ -11,8 +11,7 @@
                  [cljsjs/semantic-ui-react "0.88.1-0"]]
 
   :plugins [[lein-figwheel "0.5.19"]
-            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]
-            [com.roomkey/lein-v "7.1.0"]]
+            [lein-cljsbuild "1.1.7" :exclusions [[org.clojure/clojure]]]]
 
   :source-paths ["src"]
 
@@ -56,6 +55,4 @@
                            [lambdaisland/kaocha-cljs "0.0-68"]]}}
 
   :aliases {"kaocha" ["with-profile" "+kaocha" "run"
-                      "-m" "kaocha.runner" "unit-cljs"]}
-
-  :prep-tasks [["v" "cache" "src/fp" "cljs"]])
+                      "-m" "kaocha.runner" "unit-cljs"]})
