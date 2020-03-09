@@ -138,9 +138,6 @@
 
 (deftest grouping-operators
   (are [exp act] (= exp (->> act lex group-operators))
-    [(lex "[(bu + 2) ∘ id, id]")]
-    "[(bu + 2) ∘ id, id]"
-
     [(lex "/-")
      {:string "∘" :type :composition}
      {:string "+" :type :symbol}

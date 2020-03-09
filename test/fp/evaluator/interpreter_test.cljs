@@ -137,4 +137,8 @@
 
 (deftest very-difficult
   (are [exp act] (= exp (-> act lex parse evaluate))
-    {:number 8} "+ ∘ [(bu + 2) ∘ id, id]: 3"))
+    {:number 8} "+ ∘ [(bu + 2) ∘ id, id]: 3"
+    [{:number 5} {:number 3}] "[(bu + 2) ∘ id, id]: 3"
+    [{:number 3} {:number 5}] "[id, (bu + 2) ∘ id]: 3"
+    {:number 30}
+    "-∘[(bu × 6) ∘ id,id]∘1∘(while (not∘null∘tl) tl): <10,9,8,7,6>"))
