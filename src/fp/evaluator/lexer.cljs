@@ -28,8 +28,14 @@
   {:string str-obj
    :type (translate str-obj)})
 
+(defn- unique-or-list [translated]
+  (if (> (count translated) 1)
+    translated
+    (first translated)))
+
 (defn lex [s]
   (->> (re-seq #" |[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷\-→;,]|‾-?\d+" s)
        (map trim)
        (remove empty?)
-       (mapv translator)))
+       (map translator)
+       unique-or-list))

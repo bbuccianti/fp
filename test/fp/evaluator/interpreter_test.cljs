@@ -7,23 +7,23 @@
 
 (deftest selectors
   (are [exp act] (= exp (-> act lex parse evaluate))
-    [{:symbol "A"} {:symbol "B"} {:symbol "C"}]
+    '({:symbol "A"} {:symbol "B"} {:symbol "C"})
     "id: <A, B, C>"
 
     {:symbol "A"} "1 : <A, B, C>"
     {:symbol "B"} "2 : <A, B, C>"
 
-    nil           "4 : <A, B, C>"
-    {:symbol "C"} "1r : <A, B, C>"
-    nil           "4r : <A, B, C>"
+    :undefined           "4 : <A, B, C>"
+    {:symbol "C"}        "1r : <A, B, C>"
+    :undefined           "4r : <A, B, C>"
 
-    [{:symbol "B"} {:symbol "C"}]
+    '({:symbol "B"} {:symbol "C"})
     "tl : <A, B, C>"
 
     :empty
     "tl: <A>"
 
-    [{:symbol "A"} {:symbol "B"}]
+    '({:symbol "A"} {:symbol "B"})
     "tlr : <A, B, C>"
 
     :empty
@@ -92,8 +92,7 @@
     "∅" "distl: <y, ∅>"
     "⊥" "distl: A"
 
-    "<<1,A>,<2,A>,<3,A>>"
-    "distr: <<1,2,3>,A>"
+    "<<1,A>,<2,A>,<3,A>>" "distr: <<1,2,3>,A>"
     "∅" "distr: <∅, a>"
     "⊥" "distr: B"
 
@@ -136,10 +135,14 @@
     {:number -10}  "(bu - 10): 20"
     {:number 3}    "(bu ÷ 18) ∘ (bu + 2): 4"))
 
+(deftest difficult-sequences
+  (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
+    "<2,3,<4,5>>" "apndr ∘ [[id,‾3],[‾4,‾5]]: 2"))
+
 (deftest very-difficult
   (are [exp act] (= exp (-> act lex parse evaluate))
     {:number 8} "+ ∘ [(bu + 2) ∘ id, id]: 3"
-    [{:number 5} {:number 3}] "[(bu + 2) ∘ id, id]: 3"
-    [{:number 3} {:number 5}] "[id, (bu + 2) ∘ id]: 3"
+    '({:number 5} {:number 3}) "[(bu + 2) ∘ id, id]: 3"
+    '({:number 3} {:number 5}) "[id, (bu + 2) ∘ id]: 3"
     {:number 30}
     "-∘[(bu × 6) ∘ id,id]∘1∘(while (not∘null∘tl) tl): <10,9,8,7,6>"))

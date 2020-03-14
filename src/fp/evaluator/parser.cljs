@@ -13,7 +13,7 @@
 (defn parse-sequence [s]
   (let [replaced (-> s (replace #"<" "[") (replace #">" "]"))
         readed (read-string replaced)]
-    (mapv (comp parse lex replace-brackets str) readed)))
+    (map (comp parse lex replace-brackets str) readed)))
 
 (defn find-next [close-item m]
   (let [open-item (if (= close-item :close-bra) :open-bra :open-cond)
@@ -29,88 +29,82 @@
                     (map-indexed vector m)))))
 
 (defn group-operators
-  ([v] (group-operators [] v))
+  ([v] (group-operators () v))
 
   ([acc left]
-   (if (not (empty? left))
+   (if (empty? left)
+     (reverse acc)
      (match [left]
-       [[{:type :open-bra} & r]]
+       [([{:type :open-bra} & r] :seq)]
        (let [i (find-next :close-bra left)]
-         (group-operators (conj acc (subvec left 0 (inc i)))
-                          (subvec left (inc i))))
+         (group-operators (conj acc (take (inc i) left)) (drop (inc i) left)))
 
-       [[{:type :open-cond} & r]]
+       [([{:type :open-cond} & r] :seq)]
        (let [i (find-next :close-cond left)]
-         (group-operators (conj acc (subvec left 0 (inc i)))
-                          (subvec left (inc i))))
+         (group-operators (conj acc (take (inc i) left)) (drop (inc i) left)))
 
-       [[(:or {:type :insertion} {:type :to-all}) & r]]
-       (group-operators (conj acc (subvec left 0 2))
-                        (subvec left 2))
+       [([(:or {:type :insertion} {:type :to-all}) & r] :seq)]
+       (group-operators (conj acc (take 2 left)) (drop 2 left))
 
-       [[(:or {:type :composition} {:type :symbol}
-              {:type :number} {:type :constant}
-              {:type :comma}) & r]]
-       (group-operators (conj acc (first left)) r))
-     acc)))
+       [([(:or {:type :composition} {:type :symbol}
+               {:type :number} {:type :constant}
+               {:type :comma}) & r] :seq)]
+       (group-operators (conj acc (first left)) r)))))
 
-(defn parse [lexed-map]
-  (match [lexed-map]
-    [[{:type :undefined}]] :undefined
-    [[{:type :empty}]] :empty
-    [[{:type :boolean :string b}]] {:boolean (= b "T")}
-    [[{:type :symbol :string s}]] {:symbol s}
-    [[{:type :number :string n}]] {:number (js/parseFloat n)}
-    [[{:type :constant :string s}]]
+(defn parse [lexed]
+  (match [lexed]
+    [{:type :undefined}] :undefined
+    [{:type :empty}] :empty
+    [{:type :boolean :string b}] {:boolean (= b "T")}
+    [{:type :symbol :string s}] {:symbol s}
+    [{:type :number :string n}] {:number (js/parseFloat n)}
+    [{:type :constant :string s}]
     {:constant (js/parseFloat (replace s "‾" ""))}
 
-    [[{:type :open-seq} & r]]
-    (if (not (some #{:comma} (map :type lexed-map)))
+    [([{:type :open-seq} & r] :seq)]
+    (if (not (some #{:comma} (map :type lexed)))
       (parse-sequence
-       (apply str (interleave (map :string lexed-map) (repeat ","))))
-      (parse-sequence
-       (apply str (map :string lexed-map))))
+       (apply str (interleave (map :string lexed) (repeat ","))))
+      (parse-sequence (apply str (map :string lexed))))
 
-    [(appli :guard #(some #{:application} (map :type lexed-map)))]
-    (let [parts (partition-by #(= :application (:type %)) lexed-map)
+    [(appli :guard #(some #{:application} (map :type lexed)))]
+    (let [parts (partition-by #(= :application (:type %)) lexed)
           [left _ right] parts]
       {:application
-       {:operators (->> left vec group-operators parse vector)
-        :operands (->> right vec parse)}})
+       {:operators (->> left group-operators parse)
+        :operands (->> right parse)}})
 
-    [(condi :guard #(some #{:semicolon} (map :type (first lexed-map))))]
-    (let [parts (partition-by #(= :right (:type %))
-                              (-> condi first rest butlast))
+    [(condi :guard #(some #{:semicolon} (map :type lexed)))]
+    (let [parts (partition-by #(= :right (:type %)) lexed)
           [left _ right] parts
-          [t _ f] (partition-by #(= :semicolon (:type %)) right)]
-      {:condition (-> left parse vector)
-       :true (-> t vec parse)
-       :false (-> f vec parse)})
+          [t _ f] (partition-by #(= :semicolon (:type %)) (butlast right))]
+      {:condition (parse (next left))
+       :true (parse t)
+       :false (parse f)})
 
-    [[[{:type :open-cond} {:type :symbol :string "while"} & r]]]
+    [([{:type :open-cond} {:type :symbol :string "while"} & r] :seq)]
     (let [elements (butlast r)]
-      {:while {:predicate (-> r butlast butlast butlast rest
-                              vec parse)
-               :function (-> r butlast last vector parse)}})
+      {:while {:predicate (-> r butlast butlast butlast rest parse)
+               :function (-> r butlast last parse)}})
 
-    [(compo :guard #(some #{:composition} (map :type lexed-map)))]
+    [(compo :guard #(some #{:composition} (map :type lexed)))]
     (let [parts (partition-by #(= :composition (:type %)) compo)
           clean (remove #(= :composition (:type (first %))) parts)]
-      {:composition (vec (rseq (mapv (comp parse vec) clean)))})
+      {:composition (reverse (map parse clean))})
 
-    [(:or [[{:type :open-cond} {:type :symbol :string "bu"} & r]]
-          [{:type :open-cond} {:type :symbol :string "bu"} & r])]
-    {:bu (mapv (comp parse vector) (butlast r))}
+    [([{:type :open-cond} {:type :symbol :string "bu"} & r] :seq)]
+    {:bu (map parse (butlast r))}
 
-    [[[{:type :open-bra} & r]]]
-    (let [groups (group-operators (vec (butlast r)))
+    [(:or ([{:type :open-bra} & r] :seq)
+          ([([{:type :open-bra} & r] :seq)] :seq))]
+    (let [groups (group-operators (butlast r))
           [left _ right] (partition-by #(= :comma (:type %)) groups)]
-      {:construction (mapv (comp parse vec) [left right])})
+      {:construction (map parse (list left right))})
 
-    [[[{:type :insertion} & r]]]
-    {:insertion (mapv (comp parse vector) r)}
+    [([{:type :insertion} & r] :seq)]
+    {:insertion (map parse r)}
 
-    [[[{:type :to-all} & r]]]
-    {:to-all (mapv (comp parse vector) r)}
+    [([{:type :to-all} & r] :seq)]
+    {:to-all (map parse r)}
 
-    :else (vec lexed-map)))
+    :else (parse (first lexed))))

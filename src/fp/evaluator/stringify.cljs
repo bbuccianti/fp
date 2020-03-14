@@ -11,7 +11,7 @@
     (let [x (.toFixed (js/parseFloat n) 2)]
       (if (.endsWith (str x) ".00") (str (js/parseInt x)) (str x)))
     [{:boolean b}] (if b "T" "F")
-    [(sqc :guard vector?)]
+    [([& sqc] :seq)]
     (if (= (count sqc) 0)
       "∅"
       (str "<" (string/join ", " (map to-string sqc)) ">"))))

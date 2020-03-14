@@ -9,7 +9,9 @@
     :undefined
 
     [{:number n} _]
-    (get operand (dec n))
+    (if (>= (count operand) n)
+      (nth operand (dec n))
+      :undefined)
 
     [{:constant n} _]
     {:number n}
@@ -17,7 +19,7 @@
     [{:symbol op} _]
     (cond
       (= "atom" op)
-      {:boolean (not (vector? operand))}
+      {:boolean (not (seq? operand))}
 
       (= "id" op)
       operand
@@ -31,16 +33,18 @@
       {:boolean (= operand :empty)}
 
       (= "tl" op)
-      (let [res (-> operand rest vec)]
+      (let [res (rest operand)]
         (if (empty? res) :empty res))
 
       (= "tlr" op)
-      (let [res (-> operand rseq rest reverse vec)]
+      (let [res (-> operand reverse rest reverse)]
         (if (empty? res) :empty res))
 
       (boolean (re-matches #"\d+r" op))
-      (let [i (-> op (replace "r" ""))]
-        (get (vec (rseq operand)) (dec (js/parseInt i))))
+      (let [i (-> op (replace "r" "") js/parseInt)]
+        (if (>= (count operand) i)
+          (nth (reverse operand) (dec i))
+          :undefined))
 
       (contains? #{"+" "-" "×"} op)
       (if (and (= 2 (count operand))
@@ -75,46 +79,48 @@
       (= "reverse" op)
       (if (contains? operand :symbol)
         :undefined
-        (if (= :empty operand) :empty (-> operand rseq vec)))
+        (if (= :empty operand) :empty (reverse operand)))
 
       (= "trans" op)
-      (if (vector? operand)
-        (apply mapv vector operand)
+      (if (seq? operand)
+        (apply map list operand)
         :undefined)
 
       (= "distl" op)
-      (if (not (vector? operand))
-        :undefined
-        (if (= :empty (second operand))
-          :empty
-          (mapv vector (repeat (first operand)) (second operand))))
+      (cond
+        (not (seq? operand)) :undefined
+        (= :empty (second operand)) :empty
+        :else (map list
+                   (repeat (first operand))
+                   (second operand)))
 
       (= "distr" op)
-      (if (not (vector? operand))
-        :undefined
-        (if (= :empty (first operand))
-          :empty
-          (mapv vector (first operand) (repeat (second operand)))))
+      (cond
+        (not (seq? operand)) :undefined
+        (= :empty (first operand)) :empty
+        :else (map list
+                   (first operand)
+                   (repeat (second operand))))
 
       (= "apndl" op)
       (cond
-        (not (vector? operand)) :undefined
+        (not (seq? operand)) :undefined
         (= :empty (second operand)) [(first operand)]
         :else (into [(first operand)] (second operand)))
 
       (= "apndr" op)
       (cond
-        (not (vector? operand)) :undefined
+        (not (seq? operand)) :undefined
         (= :empty (first operand)) [(second operand)]
-        :else (conj (first operand) (last operand)))
+        :else (concat (first operand) [(last operand)]))
 
       (= "rotl" op)
-      (if (not (vector? operand))
+      (if (not (seq? operand))
         (if (= :empty operand) :empty :undefined)
         (conj (vec (rest operand)) (first operand)))
 
       (= "rotr" op)
-      (if (not (vector? operand))
+      (if (not (seq? operand))
         (if (= :empty operand) :empty :undefined)
         (into (vector (last operand)) (butlast operand))))
 
@@ -122,7 +128,7 @@
     (reduce (fn [acc f] (invoke f acc)) operand compo)
 
     [{:construction constr} _]
-    (mapv (fn [f sqc] (invoke f sqc)) constr (repeat operand))
+    (map (fn [f sqc] (invoke f sqc)) constr (repeat operand))
 
     [{:insertion inser} _]
     (reduce (fn [acc more]
@@ -130,12 +136,12 @@
             (first operand) (rest operand))
 
     [{:to-all f} _]
-    (mapv (fn [op operand]
-            (invoke op operand))
-          (repeat (first f)) operand)
+    (map (fn [op operand]
+           (invoke op operand))
+         (repeat (first f)) operand)
 
     [{:condition condi :true t :false f} _]
-    (let [x (invoke (first condi) operand)]
+    (let [x (invoke condi operand)]
       (invoke (if (:boolean x) t f) operand))
 
     [{:bu bu} _]
@@ -152,4 +158,4 @@
 (defn evaluate [parsed-map]
   (let [operators (get-in parsed-map [:application :operators])
         operands (get-in parsed-map [:application :operands])]
-    (reduce (fn [acc f] (invoke f acc)) operands operators)))
+    (invoke operators operands)))
