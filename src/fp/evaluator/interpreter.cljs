@@ -97,18 +97,16 @@
           (mapv vector (first operand) (repeat (second operand)))))
 
       (= "apndl" op)
-      (if (not (vector? operand))
-        :undefined
-        (if (= :empty (second operand))
-          [(first operand)]
-          (into [(first operand)] (second operand))))
+      (cond
+        (not (vector? operand)) :undefined
+        (= :empty (second operand)) [(first operand)]
+        :else (into [(first operand)] (second operand)))
 
       (= "apndr" op)
-      (if (not (vector? operand))
-        :undefined
-        (if (= :empty (first operand))
-          [(second operand)]
-          (reverse (into [(second operand)] (reverse (first operand))))))
+      (cond
+        (not (vector? operand)) :undefined
+        (= :empty (first operand)) [(second operand)]
+        :else (conj (first operand) (last operand)))
 
       (= "rotl" op)
       (if (not (vector? operand))
