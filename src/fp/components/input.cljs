@@ -81,7 +81,7 @@
     {:placeholder "Insertá una expresión!"
      :fluid true
      :size "huge"
-     :input {:autocomplete "off"}
+     :input {:autoComplete "off"}
      :value @in
      :onKeyPress #(handle-key-pressed % in)
      :onKeyUp #(handle-history-changes (.-key %))
