@@ -104,14 +104,14 @@
 
       (= "apndl" op)
       (cond
-        (not (seq? operand)) :undefined
         (= :empty (second operand)) [(first operand)]
+        (or (not (seq? operand)) (not (seq? (first operand)))) :undefined
         :else (into [(first operand)] (second operand)))
 
       (= "apndr" op)
       (cond
-        (not (seq? operand)) :undefined
         (= :empty (first operand)) [(second operand)]
+        (or (not (seq? operand)) (not (seq? (first operand)))) :undefined
         :else (concat (first operand) [(last operand)]))
 
       (= "rotl" op)
