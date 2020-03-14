@@ -58,6 +58,13 @@
     "[tl, tlr] : <A,B,C>"
 
     {:application
+     {:operators [{:construction [{:symbol "id"}
+                                  {:construction [{:symbol "id"}
+                                                  {:symbol "id"}]}]}]
+      :operands {:number 6}}}
+    "[id, [id, id]]: 6"
+
+    {:application
      {:operators
       [{:condition [{:composition [{:symbol "atom"} {:symbol "not"}]}]
         :true {:number 1}

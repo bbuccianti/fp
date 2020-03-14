@@ -49,7 +49,8 @@
                         (subvec left 2))
 
        [[(:or {:type :composition} {:type :symbol}
-              {:type :number} {:type :constant}) & r]]
+              {:type :number} {:type :constant}
+              {:type :comma}) & r]]
        (group-operators (conj acc (first left)) r))
      acc)))
 
@@ -102,8 +103,8 @@
     {:bu (mapv (comp parse vector) (butlast r))}
 
     [[[{:type :open-bra} & r]]]
-    (let [parts (partition-by #(= :comma (:type %)) (butlast r))
-          [left _ right] parts]
+    (let [groups (group-operators (vec (butlast r)))
+          [left _ right] (partition-by #(= :comma (:type %)) groups)]
       {:construction (mapv (comp parse vec) [left right])})
 
     [[[{:type :insertion} & r]]]
