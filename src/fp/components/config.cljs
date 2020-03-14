@@ -31,7 +31,7 @@
     :direction "right"
     :visible (:menu? @state/config)}
    [:> ui/message
-    {:content "v0.4.0"}]
+    {:content "v0.5.0"}]
    [:> ui/checkbox
     {:label "Historia"
      :toggle true
