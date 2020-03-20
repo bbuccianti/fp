@@ -4,3 +4,4 @@
 
 Can programming be liberated from the von Neumann style?
 
+[Reportá errores](https://todo.sr.ht/~bbuccianti/fp)
