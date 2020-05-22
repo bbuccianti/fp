@@ -1,14 +1,16 @@
 (ns fp.state
   (:require
-   [reagent.core :as r]))
+   [reagent.core :as rg]
+   [re-frame.core :as rf]))
 
-(defonce input (r/atom ""))
+(def db {:input ""
+         :index 0
+         :output []
+         :history? true
+         :menu? false
+         :special-chars? true})
 
-(defonce counter (r/atom 0))
-
-(defonce out (r/atom []))
-
-(defonce config (r/atom {:history? true
-                         :menu? false
-                         :special-chars? true
-                         :index 0}))
+(rf/reg-event-db
+ :initialize-db
+ (fn [old _]
+   (merge old db)))
