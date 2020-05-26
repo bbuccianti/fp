@@ -4,7 +4,8 @@ packages:
   - nodejs
   - npm
   - rsync
-  - jre10-openjdk-headless
+  - jdk8
+  - jre-openjdk-headless
 sources:
   - https://git.sr.ht/~bbuccianti/fp
 environment:
