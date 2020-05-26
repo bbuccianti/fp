@@ -6,42 +6,42 @@
 (rf/reg-sub
  :config/special-chars?
  (fn [db _]
-   (:special-chars? db)))
+   (get-in db [:config :special-chars?])))
 
 (rf/reg-event-db
  :config/toggle-specials-chars!
  (fn [db _]
-   (update db :special-chars? not)))
+   (update-in db [:config :special-chars?] not)))
 
 (rf/reg-sub
  :config/menu?
  (fn [db _]
-   (:menu? db)))
+   (get-in db [:config :menu?])))
 
 (rf/reg-event-db
  :config/toggle-menu!
  (fn [db _]
-   (update db :menu? not)))
+   (update-in db [:config :menu?] not)))
 
 (rf/reg-sub
  :config/history?
  (fn [db _]
-   (:history? db)))
+   (get-in db [:config :history?])))
 
 (rf/reg-event-db
  :config/toggle-history!
  (fn [db _]
-   (update db :history? not)))
+   (update-in db [:config :history?] not)))
 
 (rf/reg-sub
  :config/examples?
  (fn [db _]
-   (:examples? db)))
+   (get-in db [:config :examples?])))
 
 (rf/reg-event-db
  :config/toggle-examples!
  (fn [db _]
-   (update db :examples? not)))
+   (update-in db [:config :examples?] not)))
 
 (defn toggle-button [kw toggle-kw icon color]
   (let [enabled (rf/subscribe [kw])]

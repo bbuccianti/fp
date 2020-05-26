@@ -6,10 +6,10 @@
 (def db {:input ""
          :index 0
          :output []
-         :history? true
-         :menu? false
-         :examples? true
-         :special-chars? true
+         :config {:history? true
+                  :menu? false
+                  :examples? true
+                  :special-chars? true}
          :man {:selectors? true
                :predicates? true
                :arithmetics? true}})
