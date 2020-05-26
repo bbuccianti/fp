@@ -9,7 +9,8 @@
          :history? true
          :menu? false
          :examples? true
-         :special-chars? true})
+         :special-chars? true
+         :man {:predicates? true}})
 
 (rf/reg-event-db
  :initialize-db

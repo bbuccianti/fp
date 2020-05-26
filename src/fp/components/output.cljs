@@ -59,14 +59,15 @@
               :minHeight "90vh"}}
      [commands-history]
      (when (> (count @output) 0)
-         [:> ui/button
-          {:attach "bottom"
-           :compact true
-           :content "Reportá errores!"
-           :color "blue"
-           :floated "right"
-           :as "a"
-           :target "_blank"
-           :href "https://todo.sr.ht/~bbuccianti/fp"}])
+       [:> ui/container
+        {:textAlign "right"}
+        [:> ui/button
+         {:attach "bottom"
+          :compact true
+          :content "Reportá errores!"
+          :color "blue"
+          :as "a"
+          :target "_blank"
+          :href "https://todo.sr.ht/~bbuccianti/fp"}]])
      (when @examples?
        [man])]))

@@ -154,8 +154,7 @@
        :size "small"}
       (doall
        (for [[kw toggle-kw icon color]
-             [[:config/menu? :config/toggle-menu! "bars" "blue"]
-              [:config/special-chars? :config/toggle-specials-chars!
+             [[:config/special-chars? :config/toggle-specials-chars!
                "keyboard outline" "green"]
               [:config/examples? :config/toggle-examples! "help" "blue"]]]
          [config/toggle-button kw toggle-kw icon color]))]

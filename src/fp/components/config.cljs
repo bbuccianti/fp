@@ -53,26 +53,3 @@
      [:> ui/icon
       {:name icon
        :fitted true}]]))
-
-(defn sidebar []
-  (let [menu? (rf/subscribe [:config/menu?])
-        special-chars? (rf/subscribe [:config/special-chars?])
-        history? (rf/subscribe [:config/history?])]
-    [:> ui/sidebar
-     {:as ui/segment
-      :animation "push"
-      :direction "right"
-      :visible @menu?}
-     [:> ui/message
-      {:content "v0.5.0"}]
-     [:> ui/checkbox
-      {:label "Historia"
-       :toggle true
-       :checked @history?
-       :onClick #(rf/dispatch [:config/toggle-history!])
-       :style {:margin-bottom "15px"}}]
-     [:> ui/checkbox
-      {:label "Caracteres especiales"
-       :toggle true
-       :checked @special-chars?
-       :onClick #(rf/dispatch [:config/toggle-specials-chars!])}]]))

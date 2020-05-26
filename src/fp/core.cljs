@@ -5,13 +5,11 @@
    [re-frame.core :as rf]
    [fp.semantic :as ui]
    [fp.components.input :refer [readline]]
-   [fp.components.output :refer [screen]]
-   [fp.components.config :refer [sidebar]]))
+   [fp.components.output :refer [screen]]))
 
 (defn app []
   [:> ui/container
    {:id "container"}
-   [sidebar]
    [screen]
    [readline]])
 
