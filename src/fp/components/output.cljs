@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as rf]
    [clojure.string :refer [split]]
-   [fp.semantic :as ui]))
+   [fp.semantic :as ui]
+   [fp.components.examples :refer [man]]))
 
 (defn decoration [constant]
   ^{:key (gensym "span")}
@@ -15,14 +16,10 @@
                  (cycle (map decoration (re-seq #"‾-?\d+" s)))))
     s))
 
-(defn screen []
+(defn commands-history []
   (let [history? (rf/subscribe [:config/history?])
         output (rf/subscribe [:output])]
     [:> ui/container
-     {:id "screen"
-      :style {:padding-bottom "90px"
-              :padding-top "20px"
-              :minHeight "90vh"}}
      (doall
       (for [o @output]
         ^{:key (gensym "out")}
@@ -50,13 +47,26 @@
           [:> ui/button-content
            {:hidden true
             :style {:padding-left "1rem"}}
-           [:> ui/icon {:name "copy"}]]]]))
-     [:> ui/button
-      {:attach "bottom"
-       :compact true
-       :content "Reportá errores!"
-       :color "blue"
-       :floated "right"
-       :as "a"
-       :target "_blank"
-       :href "https://todo.sr.ht/~bbuccianti/fp"}]]))
+           [:> ui/icon {:name "copy"}]]]]))]))
+
+(defn screen []
+  (let [output (rf/subscribe [:output])
+        examples? (rf/subscribe [:config/examples?])]
+    [:> ui/container
+     {:id "screen"
+      :style {:padding-bottom "90px"
+              :padding-top "20px"
+              :minHeight "90vh"}}
+     [commands-history]
+     (when (> (count @output) 0)
+         [:> ui/button
+          {:attach "bottom"
+           :compact true
+           :content "Reportá errores!"
+           :color "blue"
+           :floated "right"
+           :as "a"
+           :target "_blank"
+           :href "https://todo.sr.ht/~bbuccianti/fp"}])
+     (when @examples?
+       [man])]))

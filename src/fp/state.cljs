@@ -8,6 +8,7 @@
          :output []
          :history? true
          :menu? false
+         :examples? true
          :special-chars? true})
 
 (rf/reg-event-db

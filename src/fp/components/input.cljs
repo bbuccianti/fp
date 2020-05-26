@@ -4,7 +4,7 @@
    [re-frame.core :as rf]
    [fp.semantic :as ui]
    [fp.state :as state]
-   [fp.components.config :refer [toggle-sidebar toggle-specials]]
+   [fp.components.config :as config]
    [fp.evaluator.lexer :refer [lex]]
    [fp.evaluator.parser :refer [parse]]
    [fp.evaluator.interpreter :refer [evaluate]]
@@ -152,6 +152,11 @@
      [:> ui/button-group
       {:compact true
        :size "small"}
-      [toggle-sidebar]
-      [toggle-specials]]
+      (doall
+       (for [[kw toggle-kw icon color]
+             [[:config/menu? :config/toggle-menu! "bars" "blue"]
+              [:config/special-chars? :config/toggle-specials-chars!
+               "keyboard outline" "green"]
+              [:config/examples? :config/toggle-examples! "help" "blue"]]]
+         [config/toggle-button kw toggle-kw icon color]))]
      [special-chars]]))

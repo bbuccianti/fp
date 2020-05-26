@@ -33,26 +33,25 @@
  (fn [db _]
    (update db :history? not)))
 
-(defn toggle-sidebar []
-  (let [on (rf/subscribe [:config/menu?])]
-    [:> ui/button
-     {:toggle true
-      :attached "bottom"
-      :color (if @on "red" "blue")
-      :onClick #(rf/dispatch [:config/toggle-menu!])}
-     [:> ui/icon
-      {:name (if @on "close" "bars")
-       :fitted true}]]))
+(rf/reg-sub
+ :config/examples?
+ (fn [db _]
+   (:examples? db)))
 
-(defn toggle-specials []
-  (let [specials? (rf/subscribe [:config/special-chars?])]
+(rf/reg-event-db
+ :config/toggle-examples!
+ (fn [db _]
+   (update db :examples? not)))
+
+(defn toggle-button [kw toggle-kw icon color]
+  (let [enabled (rf/subscribe [kw])]
     [:> ui/button
      {:toggle true
       :attached "bottom"
-      :active @specials?
-      :onClick #(rf/dispatch [:config/toggle-specials-chars!])}
+      :color (if @enabled "red" color)
+      :onClick #(rf/dispatch [toggle-kw])}
      [:> ui/icon
-      {:name "keyboard outline"
+      {:name icon
        :fitted true}]]))
 
 (defn sidebar []
