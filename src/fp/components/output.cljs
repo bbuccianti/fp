@@ -47,17 +47,7 @@
           [:> ui/button-content
            {:hidden true
             :style {:padding-left "1rem"}}
-           [:> ui/icon {:name "copy"}]]]]))]))
-
-(defn screen []
-  (let [output (rf/subscribe [:output])
-        examples? (rf/subscribe [:config/examples?])]
-    [:> ui/container
-     {:id "screen"
-      :style {:padding-bottom "90px"
-              :padding-top "20px"
-              :minHeight "90vh"}}
-     [commands-history]
+           [:> ui/icon {:name "copy"}]]]]))
      (when (> (count @output) 0)
        [:> ui/container
         {:textAlign "right"}
@@ -68,6 +58,13 @@
           :color "blue"
           :as "a"
           :target "_blank"
-          :href "https://todo.sr.ht/~bbuccianti/fp"}]])
-     (when @examples?
-       [man])]))
+          :href "https://todo.sr.ht/~bbuccianti/fp"}]])]))
+
+(defn screen []
+  [:> ui/container
+   {:id "screen"
+    :style {:padding-bottom "90px"
+            :padding-top "20px"
+            :minHeight "90vh"}}
+   [commands-history]
+   [man]])

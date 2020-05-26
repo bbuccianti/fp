@@ -155,8 +155,10 @@
                    :dispatcher :examples/toggle-arithmetics!}]]))
 
 (defn man []
-  [:> ui/container
-   [toggler-bar]
-   [selectors]
-   [predicates]
-   [arithmetics]])
+  (let [enabled? (rf/subscribe [:config/examples?])]
+    (when @enabled?
+      [:> ui/container
+       [toggler-bar]
+       [selectors]
+       [predicates]
+       [arithmetics]])))
