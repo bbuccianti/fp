@@ -43,6 +43,16 @@
  (fn [db _]
    (update-in db [:man :logics?] not)))
 
+(rf/reg-sub
+ :examples/sequences?
+ (fn [db _]
+   (get-in db [:man :sequences?])))
+
+(rf/reg-event-db
+ :examples/toggle-sequences!
+ (fn [db _]
+   (update-in db [:man :sequences?] not)))
+
 (defn make-card [{:keys [header meta examples]}]
   [:> ui/grid-column
    {:style {:margin-bottom "2em"}}
@@ -169,6 +179,59 @@
                                "not: T    => F"
                                "not: 1    => ⊥"]}]]])))
 
+(defn sequences []
+  (let [enabled? (rf/subscribe [:examples/sequences?])]
+    (when @enabled?
+      [:> ui/grid
+       {:columns 4
+        :centered true
+        :style {:padding-top "2em"}}
+       [:> ui/header
+        {:textAlign "center"
+         :as "h2"
+         :content "Secuencias"}]
+       [:> ui/grid-row
+        [make-card {:header "length"
+                    :meta "Devuelve la longitud de la secuencia"
+                    :examples ["length: <2,A,F>  => 3"
+                               "length: ∅        => 0"
+                               "length: 2        => ⊥"]}]
+        [make-card {:header "reverse"
+                    :meta "Devuelve el inverso de la secuencia"
+                    :examples ["reverse: <2,A,7>    => <7,A,2>"
+                               "reverse: ∅          => ∅"
+                               "reverse: x          => ⊥"]}]
+        [make-card {:header "trans"
+                    :meta "Transpone la matriz dada"
+                    :examples ["trans: <<1,2,3>, <A,B,C>>"
+                               "=> <<1,A>, <2,B>, <3,C>>"]}]]
+       [:> ui/grid-row
+        [make-card {:header "distl"
+                    :meta "Distribuir desde la izquierda"
+                    :examples ["distl: <A, <1,2,3>>"
+                               "=>    <<A,1>, <A,2>, <A,3>>"]}]
+        [make-card {:header "distr"
+                    :meta "Distribuir desde la derecha"
+                    :examples ["distl: <<1,2,3>, A>"
+                               "=>    <<1,A>, <2,A>, <3,A>>"]}]
+        [make-card {:header "apndl"
+                    :meta "Concatenar a la izquierda"
+                    :examples ["apndl: <<A,B>, <C,D>>"
+                               "=>    <<A,B>,C,D>"]}]
+        [make-card {:header "apndr"
+                    :meta "Concatenar a la derecha"
+                    :examples ["apndr: <<A,B>, <C,D>>"
+                               "=>    <A,B, <C,D>>"]}]]
+       [:> ui/grid-row
+        [make-card {:header "rotl"
+                    :meta "Rotar hacia la izquierda"
+                    :examples ["rotl: <A,B,C,D>"
+                               "=>    <B,C,D,A>"]}]
+        [make-card {:header "rotr"
+                    :meta "Rotar hacia la derecha"
+                    :examples ["rotr: <A,B,C,D>"
+                               "=>    <D,A,B,C>"]}]]])))
+
 (defn make-button [{:keys [kw content dispatcher]}]
   (let [enabled? (rf/subscribe [kw])]
     [:> ui/button
@@ -191,7 +254,10 @@
                    :dispatcher :examples/toggle-arithmetics!}]
      [make-button {:kw :examples/logics?
                    :content "Lógicas"
-                   :dispatcher :examples/toggle-logics!}]]))
+                   :dispatcher :examples/toggle-logics!}]
+     [make-button {:kw :examples/sequences?
+                   :content "Secuencias"
+                   :dispatcher :examples/toggle-sequences!}]]))
 
 (defn man []
   (let [enabled? (rf/subscribe [:config/examples?])]
@@ -201,4 +267,5 @@
        [selectors]
        [predicates]
        [arithmetics]
-       [logics]])))
+       [logics]
+       [sequences]])))
