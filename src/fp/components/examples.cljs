@@ -57,6 +57,7 @@
   [:> ui/grid-column
    {:style {:margin-bottom "2em"}}
    [:> ui/card
+    {:centered true}
     [:> ui/card-content
      [:> ui/card-header header]
      [:> ui/card-meta meta]
@@ -73,10 +74,6 @@
        {:columns 3
         :centered true
         :style {:padding-top "2em"}}
-       [:> ui/header
-        {:textAlign "center"
-         :as "h2"
-         :content "Selectores"}]
        [:> ui/grid-row
         [make-card {:header "s"
                     :meta "Para cualquier entero positivo s"
@@ -105,10 +102,6 @@
        {:columns 3
         :centered true
         :style {:padding-top "2em"}}
-       [:> ui/header
-        {:textAlign "center"
-         :as "h2"
-         :content "Predicados"}]
        [:> ui/grid-row
         [make-card {:header "atom"
                     :meta "Verifica si el operando es un átomo"
@@ -131,10 +124,6 @@
        {:columns 4
         :centered true
         :style {:padding-top "2em"}}
-       [:> ui/header
-        {:textAlign "center"
-         :as "h2"
-         :content "Aritméticas"}]
        [:> ui/grid-row
         [make-card {:header "+"
                     :meta "Suma"
@@ -160,11 +149,8 @@
        {:columns 3
         :centered true
         :style {:padding-top "2em"}}
-       [:> ui/header
-        {:textAlign "center"
-         :as "h2"
-         :content "Lógicas"}]
        [:> ui/grid-row
+        {:centered true}
         [make-card {:header "and"
                     :meta "Verdadero, si ambos lo son"
                     :examples ["and: <T,F>  => F"
@@ -186,10 +172,6 @@
        {:columns 4
         :centered true
         :style {:padding-top "2em"}}
-       [:> ui/header
-        {:textAlign "center"
-         :as "h2"
-         :content "Secuencias"}]
        [:> ui/grid-row
         [make-card {:header "length"
                     :meta "Devuelve la longitud de la secuencia"
@@ -209,28 +191,28 @@
         [make-card {:header "distl"
                     :meta "Distribuir desde la izquierda"
                     :examples ["distl: <A, <1,2,3>>"
-                               "=>    <<A,1>, <A,2>, <A,3>>"]}]
+                               "=>  <<A,1>, <A,2>, <A,3>>"]}]
         [make-card {:header "distr"
                     :meta "Distribuir desde la derecha"
                     :examples ["distl: <<1,2,3>, A>"
-                               "=>    <<1,A>, <2,A>, <3,A>>"]}]
+                               "=>  <<1,A>, <2,A>, <3,A>>"]}]
         [make-card {:header "apndl"
                     :meta "Concatenar a la izquierda"
                     :examples ["apndl: <<A,B>, <C,D>>"
-                               "=>    <<A,B>,C,D>"]}]
+                               "=>  <<A,B>,C,D>"]}]
         [make-card {:header "apndr"
                     :meta "Concatenar a la derecha"
                     :examples ["apndr: <<A,B>, <C,D>>"
-                               "=>    <A,B, <C,D>>"]}]]
+                               "=>  <A,B, <C,D>>"]}]]
        [:> ui/grid-row
         [make-card {:header "rotl"
                     :meta "Rotar hacia la izquierda"
                     :examples ["rotl: <A,B,C,D>"
-                               "=>    <B,C,D,A>"]}]
+                               "=>  <B,C,D,A>"]}]
         [make-card {:header "rotr"
                     :meta "Rotar hacia la derecha"
                     :examples ["rotr: <A,B,C,D>"
-                               "=>    <D,A,B,C>"]}]]])))
+                               "=>  <D,A,B,C>"]}]]])))
 
 (defn make-button [{:keys [kw content dispatcher]}]
   (let [enabled? (rf/subscribe [kw])]
