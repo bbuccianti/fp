@@ -135,7 +135,7 @@
       :style {:position "sticky"
               :bottom "0"
               :padding-bottom "10px"
-              :zIndex 99}}
+              :z-index 99}}
      [:> ui/input
       {:placeholder "Insertá una expresión!"
        :fluid true

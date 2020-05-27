@@ -10,9 +10,10 @@
                   :menu? false
                   :examples? true
                   :special-chars? true}
-         :man {:selectors? true
-               :predicates? true
-               :arithmetics? true}})
+         :man {:selectors? false
+               :predicates? false
+               :arithmetics? false
+               :logics? false}})
 
 (rf/reg-event-db
  :initialize-db

@@ -33,6 +33,16 @@
  (fn [db _]
    (update-in db [:man :selectors?] not)))
 
+(rf/reg-sub
+ :examples/logics?
+ (fn [db _]
+   (get-in db [:man :logics?])))
+
+(rf/reg-event-db
+ :examples/toggle-logics!
+ (fn [db _]
+   (update-in db [:man :logics?] not)))
+
 (defn make-card [{:keys [header meta examples]}]
   [:> ui/grid-column
    {:style {:margin-bottom "2em"}}
@@ -133,6 +143,32 @@
                     :examples ["÷: <10,2>    => 5"
                                "÷: <10,0>    => ⊥"]}]]])))
 
+(defn logics []
+  (let [enabled? (rf/subscribe [:examples/logics?])]
+    (when @enabled?
+      [:> ui/grid
+       {:columns 3
+        :centered true
+        :style {:padding-top "2em"}}
+       [:> ui/header
+        {:textAlign "center"
+         :as "h2"
+         :content "Lógicas"}]
+       [:> ui/grid-row
+        [make-card {:header "and"
+                    :meta "Verdadero, si ambos lo son"
+                    :examples ["and: <T,F>  => F"
+                               "and: <1,0>  => ⊥"]}]
+        [make-card {:header "or"
+                    :meta "Verdadero, si alguno lo es"
+                    :examples ["or: <T,F>    => T"
+                               "or: <2,C>    => ⊥"]}]
+        [make-card {:header "not"
+                    :meta "Verdadero a falso y viceversa"
+                    :examples ["not: F    => T"
+                               "not: T    => F"
+                               "not: 1    => ⊥"]}]]])))
+
 (defn make-button [{:keys [kw content dispatcher]}]
   (let [enabled? (rf/subscribe [kw])]
     [:> ui/button
@@ -152,7 +188,10 @@
                    :dispatcher :examples/toggle-predicates!}]
      [make-button {:kw :examples/arithmetics?
                    :content "Aritméticas"
-                   :dispatcher :examples/toggle-arithmetics!}]]))
+                   :dispatcher :examples/toggle-arithmetics!}]
+     [make-button {:kw :examples/logics?
+                   :content "Lógicas"
+                   :dispatcher :examples/toggle-logics!}]]))
 
 (defn man []
   (let [enabled? (rf/subscribe [:config/examples?])]
@@ -161,4 +200,5 @@
        [toggler-bar]
        [selectors]
        [predicates]
-       [arithmetics]])))
+       [arithmetics]
+       [logics]])))
