@@ -13,7 +13,8 @@
          :man {:selectors? false
                :predicates? false
                :arithmetics? false
-               :logics? false}})
+               :logics? false
+               :functions? false}})
 
 (rf/reg-event-db
  :initialize-db

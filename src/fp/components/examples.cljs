@@ -53,11 +53,23 @@
  (fn [db _]
    (update-in db [:man :sequences?] not)))
 
-(defn make-card [{:keys [header meta examples]}]
+(rf/reg-sub
+ :examples/functions?
+ (fn [db _]
+   (get-in db [:man :functions?])))
+
+(rf/reg-event-db
+ :examples/toggle-functions!
+ (fn [db _]
+   (update-in db [:man :functions?] not)))
+
+(defn make-card [{:keys [header meta examples width fluid]}]
   [:> ui/grid-column
-   {:style {:margin-bottom "2em"}}
+   {:width width
+    :style {:margin-bottom "2em"}}
    [:> ui/card
-    {:centered true}
+    {:centered true
+     :fluid fluid}
     [:> ui/card-content
      [:> ui/card-header header]
      [:> ui/card-meta meta]
@@ -214,6 +226,50 @@
                     :examples ["rotr: <A,B,C,D>"
                                "=>  <D,A,B,C>"]}]]])))
 
+(defn functions []
+  (let [enabled? (rf/subscribe [:examples/functions?])]
+    (when @enabled?
+      [:> ui/grid
+       {:columns "3"
+        :centered true
+        :style {:padding-top "2em"}}
+       [:> ui/grid-row
+        [make-card {:header "∘"
+                    :meta "Composición"
+                    :examples ["1 ∘ tl: <A,B,C>  => B"]}]
+        [make-card {:header "[f₁,...,fₙ]"
+                    :meta "Construcción"
+                    :examples ["[tl, tlr]: <A,B,C>"
+                               "=>   <<B,C>, <A,B>>"]}]
+        [make-card {:header "‾n"
+                    :meta "Constante n"
+                    :examples ["+ ∘ [id, ‾1]: 3"
+                               "=>  4"]}]]
+       [:> ui/grid-row
+        [make-card {:header "/f"
+                    :meta "Inserción"
+                    :examples ["/+: <1,2,3>"
+                               "=>  6"]}]
+        [make-card {:header "αf"
+                    :meta "Aplicación a todos"
+                    :examples ["α1: <<A,B,C>, <4,5,6>>"
+                               "=>  <A,4>"]}]
+        [make-card {:header "(bu f x)"
+                    :meta "Binario a unario"
+                    :examples ["(bu + 1): 2"
+                               "=>  3"]}]]
+       [:> ui/grid-row
+        [make-card {:header "(p → f; g)"
+                    :meta "Condición"
+                    :examples ["(not ∘ atom → 1; id): <A,B,C>"
+                               "=> A"]}]
+        [make-card {:header "(while p f)"
+                    :meta "While loop"
+                    :width "7"
+                    :fluid true
+                    :examples ["(while (not ∘ null ∘ tl) tl): <A,B,<A,B>>"
+                               "=>  <A,B>"]}]]])))
+
 (defn make-button [{:keys [kw content dispatcher]}]
   (let [enabled? (rf/subscribe [kw])]
     [:> ui/button
@@ -239,7 +295,10 @@
                    :dispatcher :examples/toggle-logics!}]
      [make-button {:kw :examples/sequences?
                    :content "Secuencias"
-                   :dispatcher :examples/toggle-sequences!}]]))
+                   :dispatcher :examples/toggle-sequences!}]
+     [make-button {:kw :examples/functions?
+                   :content "Formas funcionales"
+                   :dispatcher :examples/toggle-functions!}]]))
 
 (defn man []
   (let [enabled? (rf/subscribe [:config/examples?])]
@@ -250,4 +309,5 @@
        [predicates]
        [arithmetics]
        [logics]
-       [sequences]])))
+       [sequences]
+       [functions]])))
