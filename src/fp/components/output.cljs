@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as rf]
    [clojure.string :refer [split]]
+   [fp.translation :refer [trs]]
    [fp.semantic :as ui]
    [fp.components.examples :refer [man]]))
 
@@ -18,7 +19,8 @@
 
 (defn commands-history []
   (let [history? (rf/subscribe [:config/history?])
-        output (rf/subscribe [:output])]
+        output (rf/subscribe [:output])
+        lang (rf/subscribe [:lang])]
     [:> ui/container
      (doall
       (for [o @output]
@@ -54,7 +56,7 @@
         [:> ui/button
          {:attach "bottom"
           :compact true
-          :content "Reportá errores!"
+          :content (trs [@lang] [:errors])
           :color "blue"
           :as "a"
           :target "_blank"

@@ -5,6 +5,7 @@
    [fp.semantic :as ui]
    [fp.state :as state]
    [fp.components.config :as config]
+   [fp.translation :refer [trs]]
    [fp.evaluator.lexer :refer [lex]]
    [fp.evaluator.parser :refer [parse]]
    [fp.evaluator.interpreter :refer [evaluate]]
@@ -129,7 +130,8 @@
          [button-char ch])])))
 
 (defn readline []
-  (let [in (rf/subscribe [:input])]
+  (let [in (rf/subscribe [:input])
+        lang (rf/subscribe [:lang])]
     [:> ui/container
      {:id "input-bar"
       :style {:position "sticky"
@@ -147,7 +149,7 @@
        :onChange #(handle-change (.-value %2))
        :id "input"
        :action
-       {:content "Evaluar"
+       {:content (trs [@lang] [:eval])
         :onClick handle-action}}]
      [:> ui/button-group
       {:compact true
@@ -157,5 +159,6 @@
              [[:config/special-chars? :config/toggle-specials-chars!
                "keyboard outline" "green"]
               [:config/examples? :config/toggle-examples! "help" "blue"]]]
-         [config/toggle-button kw toggle-kw icon color]))]
+         [config/toggle-button kw toggle-kw icon color]))
+      [config/language-button]]
      [special-chars]]))

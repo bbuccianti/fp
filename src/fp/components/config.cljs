@@ -53,3 +53,11 @@
      [:> ui/icon
       {:name icon
        :fitted true}]]))
+
+(defn language-button []
+  (let [lang (rf/subscribe [:lang])]
+    [:> ui/button
+     {:attached "bottom"
+      :color "blue"
+      :content (if (= @lang :es) "ES" "EN")
+      :onClick #(rf/dispatch [:toggle-lang!])}]))

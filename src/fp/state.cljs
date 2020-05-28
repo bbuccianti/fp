@@ -6,6 +6,7 @@
 (def db {:input ""
          :index 0
          :output []
+         :lang :es
          :config {:history? true
                   :menu? false
                   :examples? true
