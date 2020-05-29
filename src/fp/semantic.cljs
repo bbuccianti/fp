@@ -37,4 +37,4 @@
 (def card-meta        (component "Card" "Meta"))
 (def header           (component "Header"))
 (def divider          (component "Divider"))
-(def checkbox         (component "Checkbox"))
+(def dimmer           (component "Dimmer"))

@@ -54,7 +54,12 @@
         :sr "For any positive integer s"
         :tl "Tail from left"
         :tr "Tail from right"
-        :id "Returns operand"}
+        :id "Returns operand"
+        :over "Overline"
+        :alpha "Alpha"
+        :then "Then"
+        :empty "Empty"
+        :undef "Undefined"}
 
    :es {:eval "Evaluar"
         :errors "Reportá errores!"
@@ -95,7 +100,12 @@
         :sr "Para cualquier entero positivo s"
         :tl "Cola desde la izquierda"
         :tr "Cola desde la derecha"
-        :id "Devuelve el operando"}})
+        :id "Devuelve el operando"
+        :over "Superlínea"
+        :alpha "Alfa"
+        :then "Entonces"
+        :empty "Vacío"
+        :undef "Indefinido"}})
 
 (def opts {:dict dictionary})
 (def trs (partial tr opts))

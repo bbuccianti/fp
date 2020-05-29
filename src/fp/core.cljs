@@ -4,13 +4,14 @@
    [reagent.core :as rg]
    [re-frame.core :as rf]
    [fp.semantic :as ui]
-   [fp.components.input :refer [readline]]
+   [fp.components.input :refer [readline selector]]
    [fp.components.output :refer [screen]]))
 
 (defn app []
   [:> ui/container
    {:id "container"}
    [screen]
+   [selector]
    [readline]])
 
 (defn mount-app []

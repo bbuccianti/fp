@@ -4,9 +4,11 @@
    [re-frame.core :as rf]))
 
 (def db {:input ""
+         :selector-input ""
          :index 0
          :output []
          :lang :es
+         :selector? false
          :config {:history? true
                   :menu? false
                   :examples? true

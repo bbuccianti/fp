@@ -1,7 +1,9 @@
 (ns fp.components.input
   (:require
    [goog.dom :as gdom]
+   [reagent.core :as rg]
    [re-frame.core :as rf]
+   [clojure.string :as string :refer [lower-case includes?]]
    [fp.semantic :as ui]
    [fp.state :as state]
    [fp.components.config :as config]
@@ -10,6 +12,10 @@
    [fp.evaluator.parser :refer [parse]]
    [fp.evaluator.interpreter :refer [evaluate]]
    [fp.evaluator.stringify :refer [to-string]]))
+
+(def list-of-special-chars
+  [[:composition "∘"] [:product "×"] [:quotient "÷"] [:over "‾"]
+   [:alpha "α"] [:then "→"] [:empty "∅"] [:undef "⊥"]])
 
 (rf/reg-sub
  :input
@@ -76,6 +82,48 @@
                         [:update-input
                          (get-in db [:output new-index :command] "")]}]})))
 
+(rf/reg-sub
+ :input/selector?
+ (fn [db _]
+   (:selector? db)))
+
+(rf/reg-event-fx
+ :input/show-selector!
+ (fn [{:keys [db]} _]
+   {:db (assoc db :selector? true)
+    :dispatch-later [{:ms 50 :dispatch [:input/selector-focus]}]}))
+
+(rf/reg-event-fx
+ :input/selector-focus
+ (fn [{:keys [db]} _]
+   (let [selector (gdom/getElement "input-selector")]
+     (.focus selector)
+     {:db db})))
+
+(rf/reg-event-fx
+ :input/focus
+ (fn [{:keys [db]} _]
+   (let [input (gdom/getElement "input")]
+     (.focus input)
+     {:db db})))
+
+(rf/reg-event-fx
+ :input/close-selector!
+ (fn [{:keys [db]} _]
+   {:db (assoc db :selector? false)
+    :dispatch-later [{:ms 50 :dispatch [:input/focus]}
+                     {:ms 50 :dispatch [:input/change-selector ""]}]}))
+
+(rf/reg-sub
+ :input/selector
+ (fn [db _]
+   (:selector-input db)))
+
+(rf/reg-event-db
+ :input/change-selector
+ (fn [db [_ input-string]]
+   (assoc db :selector-input input-string)))
+
 (defn handle-action []
   (let [in (rf/subscribe [:input])
         output-count (rf/subscribe [:output-count])
@@ -98,8 +146,18 @@
     (js/setTimeout #(.setSelectionRange input (inc idx) (inc idx)) 25)))
 
 (defn handle-key-pressed [e]
-  (if (= "Enter" (.-key e))
-    (handle-action)))
+  (case (.-key e)
+    "Enter" (handle-action)
+    "\\"  (do (.preventDefault e)
+              (rf/dispatch [:input/show-selector!]))
+    nil))
+
+(defn handle-selector-key-pressed [e [_ ch _]]
+  (case (.-key e)
+    "Enter" (do
+              (insert-char ch)
+              (rf/dispatch [:input/close-selector!]))
+    nil))
 
 (defn handle-change [new-in]
   (let [input (gdom/getElement "input")
@@ -125,9 +183,65 @@
        {:compact true
         :basic true
         :floated "right"}
-       (for [ch ["∘" "×" "÷" "‾" "α" "→" "∅" "⊥"]]
+       (for [[_ ch] list-of-special-chars]
          ^{:key ch}
          [button-char ch])])))
+
+(defn cleaned [word]
+  (string/replace (lower-case word)
+                  #"[áéíóú]"
+                  {"á" "a" "é" "e" "í" "i" "ó" "o" "ú" "u"}))
+
+(defn filter-content [v input]
+  (let [in (lower-case input)]
+    (filter
+     (fn [[kw ch word]]
+       (or (includes? (str kw) in)
+           (includes? (lower-case word) in)
+           (includes? (cleaned word) in)))
+     v)))
+
+(defn selector []
+  (let [enabled? (rf/subscribe [:input/selector?])
+        lang (rf/subscribe [:lang])
+        input (rf/subscribe [:input/selector])
+        vec-of-words (map #(conj % (trs [@lang] [(first %)]))
+                          list-of-special-chars)]
+    [:> ui/dimmer
+     {:active @enabled?
+      :verticalAlign "top"
+      :onClickOutside #(rf/dispatch [:input/close-selector!])
+      :style {:padding-top "5em"}}
+     [:> ui/segment-group
+      [:> ui/input
+       {:id "input-selector"
+        :size "huge"
+        :value @input
+        :onKeyUp #(if (= "Escape" (.-key %))
+                    (rf/dispatch [:input/close-selector!]))
+        :onChange
+        #(rf/dispatch [:input/change-selector (.-value (.-target %))])
+
+        :onKeyPress
+        #(handle-selector-key-pressed
+          % (first (filter-content vec-of-words @input)))}]
+      [:> ui/segment-group
+       (doall
+        (for [[kw ch word]
+              (filter-content vec-of-words @input)]
+          ^{:key kw}
+          [:> ui/segment
+           {:textAlign "left"
+            :inverted true
+            :style {:visibility "visible"}}
+           [:p
+            {:style {:display "inline-block"}}
+            word]
+           [:p
+            {:style {:display "inline-block"
+                     :font-size "1.2rem"
+                     :float "right"}}
+            ch]]))]]]))
 
 (defn readline []
   (let [in (rf/subscribe [:input])
@@ -144,7 +258,7 @@
        :size "huge"
        :input {:autoComplete "off"}
        :value (or @in "")
-       :onKeyPress #(handle-key-pressed %)
+       :onKeyPress handle-key-pressed
        :onKeyUp #(handle-history-changes (.-key %))
        :onChange #(handle-change (.-value %2))
        :id "input"
@@ -159,6 +273,7 @@
              [[:config/special-chars? :config/toggle-specials-chars!
                "keyboard outline" "green"]
               [:config/examples? :config/toggle-examples! "help" "blue"]]]
+         ^{:key kw}
          [config/toggle-button kw toggle-kw icon color]))
       [config/language-button]]
      [special-chars]]))
