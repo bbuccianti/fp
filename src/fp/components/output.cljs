@@ -52,7 +52,8 @@
            [:> ui/icon {:name "copy"}]]]]))
      (when (> (count @output) 0)
        [:> ui/container
-        {:textAlign "right"}
+        {:textAlign "right"
+         :style {:margin-bottom "2em"}}
         [:> ui/button
          {:attach "bottom"
           :compact true
