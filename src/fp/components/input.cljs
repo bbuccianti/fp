@@ -65,6 +65,11 @@
  (fn [cofx _]
    (assoc cofx :output-count (count (get-in cofx [:db :output])))))
 
+(rf/reg-event-db
+ :index/tolast
+ (fn [db _]
+   (assoc db :index (count (:output db)))))
+
 (rf/reg-event-fx
  :index/inc
  [(rf/inject-cofx :add-output-count)]
@@ -139,7 +144,7 @@
                    :command @in
                    :result (-> @in lex parse evaluate to-string)}]
     (rf/dispatch [:add-output new-input])
-    (rf/dispatch [:index/inc])
+    (rf/dispatch [:index/tolast])
     (rf/dispatch [:update-input ""])
     (.. (gdom/getElement "container") (scrollIntoView false))))
 
