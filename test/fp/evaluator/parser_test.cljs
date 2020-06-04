@@ -77,7 +77,7 @@
       {:composition '({:construction ({:symbol "id"} {:constant 1})}
                       {:symbol "+"})}
       :operands {:number 3}}}
-    "+ ∘ [id, ‾1]: 3"
+    "+ ∘ [id, ‾1‾]: 3"
 
     {:application
      {:operators {:insertion '({:symbol "+"})}

@@ -13,7 +13,7 @@
     [(:or "[" "]")] (if (= "[" s) :open-bra :close-bra)
     [(:or "(" ")")] (if (= "(" s) :open-cond :close-cond)
     [(n :guard str-number?)] :number
-    [(n :guard #(boolean (re-matches #"‾-?\d+" s)))] :constant
+    [(n :guard #(boolean (re-matches #"‾-?\d+‾" s)))] :constant
     [(:or "T" "F")] :boolean
     [":"] :application
     ["/"] :insertion
@@ -34,8 +34,6 @@
     (first translated)))
 
 (defn lex [s]
-  (->> (re-seq #" |[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷\-→;,]|‾-?\d+" s)
-       (map trim)
-       (remove empty?)
-       (map translator)
+  (->> (re-seq #"[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷\-→;,]|‾-?\d+‾" s)
+       (map (comp translator trim))
        unique-or-list))

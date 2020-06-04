@@ -92,17 +92,17 @@
     '({:string "[" :type :open-bra}
       {:string "id" :type :symbol}
       {:string "," :type :comma}
-      {:string "‾1" :type :constant}
+      {:string "‾1‾" :type :constant}
       {:string "]" :type :close-bra}
       {:string ":" :type :application}
       {:string "3" :type :number})
-    "[id, ‾1]: 3"
+    "[id, ‾1‾]: 3"
 
     '({:string "[" :type :open-bra}
       {:string "id" :type :symbol}
       {:string "," :type :comma}
-      {:string "‾-1" :type :constant}
+      {:string "‾-1‾" :type :constant}
       {:string "]" :type :close-bra}
       {:string ":" :type :application}
       {:string "3" :type :number})
-    "[id, ‾-1]: 3"))
+    "[id, ‾-1‾]: 3"))

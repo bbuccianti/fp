@@ -248,9 +248,9 @@
                     :meta (trs [@lang] [:construction])
                     :examples ["[tl, tlr]: <A,B,C>"
                                "=>   <<B,C>, <A,B>>"]}]
-        [make-card {:header "‾n"
+        [make-card {:header "‾n‾"
                     :meta (trs [@lang] [:constant])
-                    :examples ["+ ∘ [id, ‾1]: 3"
+                    :examples ["+ ∘ [id, ‾1‾]: 3"
                                "=>  4"]}]]
        [:> ui/grid-row
         [make-card {:header "/f"

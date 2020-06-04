@@ -119,10 +119,10 @@
     "B"                    "1 ∘ tl: <A, B, C>"
     "<<B, C>, <A, B>>"     "[tl, tlr] : <A,B,C>"
     "A"                    "(not ∘ atom → 1; id) : <A, B, C>"
-    "4"                    "‾4 : T"
-    "<3, 1>"               "[id, ‾1]: 3"
+    "4"                    "‾4‾ : T"
+    "<3, 1>"               "[id, ‾1‾]: 3"
     "<6,<6,6>>"            "[id, [id, id]]: 6"
-    "4"                    "+ ∘ [id, ‾1]: 3"
+    "4"                    "+ ∘ [id, ‾1‾]: 3"
     "6"                    "/+:<1,2,3>"
     "<A,4>"                "α 1 : <<A,B,C>,<4,5,6>>"
     "8"                    "+ ∘ α × : <<1,2>,<2,3>>"
@@ -137,7 +137,7 @@
 
 (deftest difficult-sequences
   (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
-    "<2,3,<4,5>>" "apndr ∘ [[id,‾3],[‾4,‾5]]: 2"))
+    "<2,3,<4,5>>" "apndr ∘ [[id,‾3‾],[‾4‾,‾5‾]]: 2"))
 
 (deftest very-difficult
   (are [exp act] (= exp (-> act lex parse evaluate))
