@@ -5,10 +5,10 @@
 
 (deftest objects
   (are [exp act] (= exp (lex act))
-    {:string "⊥" :type :undefined}
+    '({:string "⊥" :type :undefined})
     "⊥"
 
-    {:string "∅" :type :empty}
+    '({:string "∅" :type :empty})
     "∅"
 
     '({:string "<" :type :open-seq}
