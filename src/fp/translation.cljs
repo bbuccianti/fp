@@ -59,7 +59,11 @@
         :alpha "Alpha"
         :then "Then"
         :empty "Empty"
-        :undef "Undefined"}
+        :undef "Undefined"
+        :write-expression "Insert here an expression!"
+        :special-chars "To choose a special char type '\\'"
+        :docs "You can see some examples activating the help buttons"
+        :report! "Help us to get better by reporting errors!"}
 
    :es {:eval "Evaluar"
         :errors "Reportá errores!"
@@ -105,7 +109,11 @@
         :alpha "Alfa"
         :then "Entonces"
         :empty "Vacío"
-        :undef "Indefinido"}})
+        :undef "Indefinido"
+        :write-expression "Insertá aquí una expresión!"
+        :special-chars "Para seleccionar un caracter especial ingresá '\\'"
+        :docs "Podés ver algunos ejemplos activando los botones de ayuda"
+        :report! "Ayudanos a mejorar reportando los errores que encuentres!"}})
 
 (def opts {:dict dictionary})
 (def trs (partial tr opts))

@@ -18,6 +18,14 @@
    [:alpha "α"] [:then "→"] [:empty "∅"] [:undef "⊥"]])
 
 (rf/reg-sub
+ :helper
+ (fn [db _]
+   (let [cout (count (:output db))
+         helpers (count (:helpers db))
+         n (mod cout helpers)]
+     (get-in db [:helpers n]))))
+
+(rf/reg-sub
  :input
  (fn [db _]
    (:input db)))
@@ -245,7 +253,8 @@
 
 (defn readline []
   (let [in (rf/subscribe [:input])
-        lang (rf/subscribe [:lang])]
+        lang (rf/subscribe [:lang])
+        helper (rf/subscribe [:helper])]
     [:> ui/container
      {:id "input-bar"
       :style {:position "sticky"
@@ -253,7 +262,7 @@
               :padding-bottom "10px"
               :z-index 99}}
      [:> ui/input
-      {:placeholder "Insertá una expresión!"
+      {:placeholder (trs [@lang] [@helper])
        :fluid true
        :size "huge"
        :input {:autoComplete "off"}

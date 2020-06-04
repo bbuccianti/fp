@@ -17,7 +17,9 @@
                :predicates? false
                :arithmetics? false
                :logics? false
-               :functions? false}})
+               :functions? false}
+         :helpers [:write-expression :special-chars :docs
+                   :report!]})
 
 (rf/reg-event-db
  :initialize-db
