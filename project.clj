@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [org.clojure/clojurescript "1.10.597"]
                  [org.clojure/core.async  "0.4.500"]
-                 [org.clojure/core.match "0.3.0"]
+                 [org.clojure/core.match "1.0.0"]
                  [reagent "0.9.1"]
                  [re-frame "0.12.0"]
                  [com.taoensso/tempura "1.2.1"]

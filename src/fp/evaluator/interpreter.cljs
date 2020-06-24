@@ -3,6 +3,113 @@
    [clojure.core.match :refer [match]]
    [clojure.string :refer [replace]]))
 
+;; Utilities
+(def binary?   #(= 2 (count %)))
+(def kempty?   #(= :empty %))
+(def ksymbol?  #(contains? % :symbol))
+(def kbool?    #(contains? % :boolean))
+(def knumber?  #(contains? % :number))
+(def math-op   #(if (and (binary? %2) (every? knumber? %2))
+                  (apply %1 (map :number %2))
+                  :undefined))
+
+(defn wrap-empty [test ret]
+  (if (empty? test) :empty ret))
+
+(defn wrap-undefined [pred ret]
+  (if pred ret :undefined))
+
+(defn wrap-both [operand pred ret-empty ret]
+  (if pred
+    (ret operand)
+    (if (kempty? operand) ret-empty :undefined)))
+
+(defn wrap-appnd [test ret-empty pred ret]
+  (if (kempty? test)
+    ret-empty
+    (if pred
+      (ret test)
+      :undefined)))
+
+;; % is always the operand
+(def symbols {"atom"    (comp not seq?)
+              "id"      identity
+              "null"    kempty?
+              "eq"      #(wrap-undefined (binary? %) (apply = %))
+              "not"     #(wrap-undefined (kbool? %) (not (:boolean %)))
+
+              "and"     #(wrap-undefined
+                          (and (binary? %) (every? kbool? %))
+                          (every? identity (map :boolean %)))
+
+              "or"      #(wrap-undefined
+                          (and (binary? %) (every? kbool? %))
+                          (some identity (map :boolean %)))
+
+              "length"  #(wrap-undefined
+                          (not (ksymbol? %))
+                          (if (kempty? %) 0 (count %)))
+
+              "reverse" #(wrap-undefined
+                          (not (ksymbol? %))
+                          (if (kempty? %) :empty (reverse %)))
+
+              "trans"   #(wrap-undefined (seq? %) (apply map list %))
+              "tl"      #(wrap-empty (rest %) (rest %))
+              "tlr"     #(wrap-empty (butlast %) (butlast %))
+
+              "distl"   #(wrap-undefined
+                          (seq? %)
+                          (if (kempty? (second %))
+                            :empty
+                            (map list (repeat (first %)) (second %))))
+
+              "distr"   #(wrap-undefined
+                          (seq? %)
+                          (if (kempty? (first %))
+                            :empty
+                            (map list (first %) (repeat (second %)))))
+
+              "rotl"    #(wrap-both
+                          % (seq? %) :empty
+                          (fn [operand] (conj (vec (rest operand))
+                                          (first operand))))
+
+              "rotr"    #(wrap-both
+                          % (seq? %) :empty
+                          (fn [operand]
+                            (into (vector (last operand))
+                                  (butlast operand))))
+
+              "apndl"   #(wrap-appnd
+                          (second %) [(first %)]
+                          (and (seq? %) (seq? (first %)))
+                          (fn [operand]
+                            (into [(first %)] operand)))
+
+              "apndr"   #(wrap-appnd
+                          (first %) [(second %)]
+                          (and (seq? %) (seq? (first %)))
+                          (fn [operand]
+                            (concat operand [(last %)])))
+
+              "+"       #(math-op + %)
+              "-"       #(math-op - %)
+              "×"       #(math-op * %)
+              "÷"       #(wrap-undefined (not= 0 (-> % last :number))
+                                         (math-op / %))})
+
+(defn apply-symbol [op operand]
+  (cond
+    (contains? symbols op)
+    ((symbols op) operand)
+
+    (boolean (re-matches #"\d+r" op))
+    (let [i (-> op (replace "r" "") js/parseInt)]
+      (if (>= (count operand) i)
+        (nth (reverse operand) (dec i))
+        :undefined))))
+
 (defn invoke [operator operand]
   (match [operator operand]
     [_ :undefined]
@@ -17,112 +124,13 @@
     {:number n}
 
     [{:symbol op} _]
-    (cond
-      (= "atom" op)
-      {:boolean (not (seq? operand))}
-
-      (= "id" op)
-      operand
-
-      (= "eq" op)
-      (if (= 2 (count operand))
-        {:boolean (apply = operand)}
-        :undefined)
-
-      (= "null" op)
-      {:boolean (= operand :empty)}
-
-      (= "tl" op)
-      (let [res (rest operand)]
-        (if (empty? res) :empty res))
-
-      (= "tlr" op)
-      (let [res (-> operand reverse rest reverse)]
-        (if (empty? res) :empty res))
-
-      (boolean (re-matches #"\d+r" op))
-      (let [i (-> op (replace "r" "") js/parseInt)]
-        (if (>= (count operand) i)
-          (nth (reverse operand) (dec i))
-          :undefined))
-
-      (contains? #{"+" "-" "×"} op)
-      (if (and (= 2 (count operand))
-               (every? #(contains? % :number) operand))
-        {:number (apply (case op "+" + "-" - "×" *) (map :number operand))}
-        :undefined)
-
-      (= "÷" op)
-      (if (and (= 2 (count operand))
-               (every? #(contains? % :number) operand)
-               (not= 0 (:number (last operand))))
-        {:number (apply / (map :number operand))}
-        :undefined)
-
-      (contains? #{"and" "or"} op)
-      (if (and (= 2 (count operand))
-               (every? #(contains? % :boolean) operand))
-        {:boolean ((case op "and" every? "or" some)
-                   identity (map :boolean operand))}
-        :undefined)
-
-      (= "not" op)
-      (if (contains? operand :boolean)
-        {:boolean (not (:boolean operand))}
-        :undefined)
-
-      (= "length" op)
-      (if (contains? operand :symbol)
-        :undefined
-        {:number (if (= :empty operand) 0 (count operand))})
-
-      (= "reverse" op)
-      (if (contains? operand :symbol)
-        :undefined
-        (if (= :empty operand) :empty (reverse operand)))
-
-      (= "trans" op)
-      (if (seq? operand)
-        (apply map list operand)
-        :undefined)
-
-      (= "distl" op)
-      (cond
-        (not (seq? operand)) :undefined
-        (= :empty (second operand)) :empty
-        :else (map list
-                   (repeat (first operand))
-                   (second operand)))
-
-      (= "distr" op)
-      (cond
-        (not (seq? operand)) :undefined
-        (= :empty (first operand)) :empty
-        :else (map list
-                   (first operand)
-                   (repeat (second operand))))
-
-      (= "apndl" op)
-      (cond
-        (= :empty (second operand)) [(first operand)]
-        (or (not (seq? operand)) (not (seq? (first operand)))) :undefined
-        :else (into [(first operand)] (second operand)))
-
-      (= "apndr" op)
-      (cond
-        (= :empty (first operand)) [(second operand)]
-        (or (not (seq? operand)) (not (seq? (first operand)))) :undefined
-        :else (concat (first operand) [(last operand)]))
-
-      (= "rotl" op)
-      (if (not (seq? operand))
-        (if (= :empty operand) :empty :undefined)
-        (conj (vec (rest operand)) (first operand)))
-
-      (= "rotr" op)
-      (if (not (seq? operand))
-        (if (= :empty operand) :empty :undefined)
-        (into (vector (last operand)) (butlast operand))))
+    (let [bool js/Boolean
+          number js/Number
+          res (apply-symbol op operand)]
+      (match [(type res)]
+        [bool]   {:boolean res}
+        [number] {:number res}
+        :else    res))
 
     [{:composition compo} _]
     (reduce (fn [acc f] (invoke f acc)) operand compo)
