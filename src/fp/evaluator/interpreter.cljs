@@ -3,6 +3,8 @@
    [clojure.core.match :refer [match]]
    [clojure.string :refer [replace]]))
 
+(declare invoke)
+
 ;; Utilities
 (def binary?   #(= 2 (count %)))
 (def kempty?   #(= :empty %))
@@ -99,16 +101,23 @@
               "÷"       #(wrap-undefined (not= 0 (-> % last :number))
                                          (math-op / %))})
 
+(defonce user-defs! (atom {}))
+
 (defn apply-symbol [op operand]
   (cond
     (contains? symbols op)
     ((symbols op) operand)
 
+    (contains? @user-defs! op)
+    (invoke (get @user-defs! op) operand)
+
     (boolean (re-matches #"\d+r" op))
     (let [i (-> op (replace "r" "") js/parseInt)]
       (if (>= (count operand) i)
         (nth (reverse operand) (dec i))
-        :undefined))))
+        :undefined))
+
+    :else (throw (js/Error. "Error symbol not found"))))
 
 (defn invoke [operator operand]
   (match [operator operand]
@@ -150,7 +159,9 @@
 
     [{:condition condi :true t :false f} _]
     (let [x (invoke condi operand)]
-      (invoke (if (:boolean x) t f) operand))
+      (if (:boolean x)
+        (invoke t operand)
+        (invoke f operand)))
 
     [{:bu bu} _]
     (invoke (first bu) [(second bu) operand])
@@ -161,9 +172,16 @@
         (recur (invoke (:function w) target))
         target))
 
-    :else "Error"))
+    :else (throw (js/Error. "Error invoking"))))
 
-(defn evaluate [parsed-map]
-  (let [operators (get-in parsed-map [:application :operators])
-        operands (get-in parsed-map [:application :operands])]
-    (invoke operators operands)))
+(defn evaluate [parsed]
+  (match [parsed]
+    [{:application a}]
+    (try
+      (invoke (:operators a) (:operands a))
+      (catch js/Error err err))
+
+    [{:definition df}]
+    (do
+      (swap! user-defs! assoc (:symbol df) (:body df))
+      {:defined df})))

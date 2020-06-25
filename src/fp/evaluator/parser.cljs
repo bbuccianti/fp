@@ -46,6 +46,14 @@
        [([(:or {:type :insertion} {:type :to-all}) & r] :seq)]
        (group-operators (conj acc (take 2 left)) (drop 2 left))
 
+       ;; TODO: remove this nested approach
+       ;; We can have a previous grouping here
+       [([(:or ([{:type :open-cond} & rr] :seq)
+               ([{:type :open-bra} & rr] :seq)
+               ([{:type :insertion} & rr] :seq)
+               ([{:type :to-all} & rr] :seq)) & r] :seq)]
+       (group-operators (conj acc (first left)) r)
+
        [([(:or {:type :composition} {:type :symbol}
                {:type :number} {:type :constant}
                {:type :comma}) & r] :seq)]
@@ -68,11 +76,16 @@
       (parse-sequence (apply str (map :string lexed))))
 
     [(appli :guard #(some #{:application} (map :type lexed)))]
-    (let [parts (partition-by #(= :application (:type %)) lexed)
-          [left _ right] parts]
+    (let [[left _ right] (partition-by #(= :application (:type %)) lexed)]
       {:application
        {:operators (->> left group-operators parse)
         :operands (->> right parse)}})
+
+    [(d :guard #(some #{:definition} (map :type lexed)))]
+    (let [[left _ right] (partition-by #(= :definition (:type %)) lexed)]
+      {:definition
+       {:symbol (:string (second left))
+        :body (parse right)}})
 
     [(condi :guard #(some #{:semicolon} (map :type lexed)))]
     (let [parts (partition-by #(= :right (:type %)) lexed)
@@ -88,8 +101,9 @@
                :function (-> r butlast last parse)}})
 
     [(compo :guard #(some #{:composition} (map :type lexed)))]
-    (let [parts (partition-by #(= :composition (:type %)) compo)
-          clean (remove #(= :composition (:type (first %))) parts)]
+    (let [clean (->> compo group-operators
+                     (partition-by #(= :composition (:type %)))
+                     (remove #(= :composition (:type (first %)))))]
       {:composition (reverse (map parse clean))})
 
     [([{:type :open-cond} {:type :symbol :string "bu"} & r] :seq)]

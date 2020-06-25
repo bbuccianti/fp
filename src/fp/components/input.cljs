@@ -15,7 +15,8 @@
 
 (def list-of-special-chars
   [[:composition "∘"] [:product "×"] [:quotient "÷"] [:over "‾"]
-   [:alpha "α"] [:then "→"] [:empty "∅"] [:undef "⊥"]])
+   [:alpha "α"] [:then "→"] [:empty "∅"] [:undef "⊥"]
+   [:definition "≡"]])
 
 (rf/reg-sub
  :helper

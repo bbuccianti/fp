@@ -105,4 +105,16 @@
       {:string "]" :type :close-bra}
       {:string ":" :type :application}
       {:string "3" :type :number})
-    "[id, ‾-1‾]: 3"))
+    "[id, ‾-1‾]: 3"
+
+    '({:string "Def" :type :symbol}
+      {:string "sub1" :type :symbol}
+      {:string "≡" :type :definition}
+      {:string "-" :type :symbol}
+      {:string "∘" :type :composition}
+      {:string "[" :type :open-bra}
+      {:string "id" :type :symbol}
+      {:string "," :type :comma}
+      {:string "‾1‾" :type :constant}
+      {:string "]" :type :close-bra})
+    "Def sub1 ≡ - ∘ [id, ‾1‾]"))

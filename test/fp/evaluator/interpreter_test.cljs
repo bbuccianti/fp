@@ -118,7 +118,7 @@
   (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
     "B"                    "1 ∘ tl: <A, B, C>"
     "<<B, C>, <A, B>>"     "[tl, tlr] : <A,B,C>"
-    "A"                    "(not ∘ atom → 1; id) : <A, B, C>"
+    "A"                    "(not ∘ atom → 1; id): <A, B, C>"
     "4"                    "‾4‾ : T"
     "<3, 1>"               "[id, ‾1‾]: 3"
     "<6,<6,6>>"            "[id, [id, id]]: 6"
@@ -144,5 +144,6 @@
     {:number 8} "+ ∘ [(bu + 2) ∘ id, id]: 3"
     '({:number 5} {:number 3}) "[(bu + 2) ∘ id, id]: 3"
     '({:number 3} {:number 5}) "[id, (bu + 2) ∘ id]: 3"
-    {:number 30}
-    "-∘[(bu × 6) ∘ id,id]∘1∘(while (not∘null∘tl) tl): <10,9,8,7,6>"))
+    {:number 30} "-∘[(bu × 6) ∘ id,id]∘1∘(while (not∘null∘tl) tl): <10,9,8,7,6>"
+    {:number 6}  "(bu + 2) ∘ (bu + 2): 2"
+    '({:number 2} {:number 6}) "[id, (bu + 2) ∘ (bu + 2)]: 2"))

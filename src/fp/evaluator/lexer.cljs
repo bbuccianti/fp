@@ -16,6 +16,7 @@
     [(n :guard #(boolean (re-matches #"‾-?\d+‾" s)))] :constant
     [(:or "T" "F")] :boolean
     [":"] :application
+    ["≡"] :definition
     ["/"] :insertion
     ["∘"] :composition
     ["α"] :to-all
@@ -29,5 +30,5 @@
    :type (translate str-obj)})
 
 (defn lex [s]
-  (->> (re-seq #"[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:/∘α×÷\-→;,]|‾-?\d+‾" s)
+  (->> (re-seq #"[<>\[\]\(\)]|[A-Za-z0-9.]+|[⊥∅+:≡/∘α×÷\-→;,]|‾-?\d+‾" s)
        (map (comp translator trim))))

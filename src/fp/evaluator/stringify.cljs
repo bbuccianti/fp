@@ -11,6 +11,7 @@
     (let [x (.toFixed (js/parseFloat n) 2)]
       (if (.endsWith (str x) ".00") (str (js/parseInt x)) (str x)))
     [{:boolean b}] (if b "T" "F")
+    [{:defined df}] (:symbol df)
     [([& sqc] :seq)]
     (if (= (count sqc) 0)
       "∅"

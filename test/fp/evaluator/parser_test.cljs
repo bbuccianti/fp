@@ -70,7 +70,7 @@
        :true {:number 1}
        :false {:symbol "id"}}
       :operands '({:symbol "A"} {:symbol "B"} {:symbol "C"})}}
-    "(not ∘ atom → 1; id) : <A, B, C>"
+    "(not ∘ atom → 1; id): <A, B, C>"
 
     {:application
      {:operators
@@ -175,3 +175,12 @@
           {:string "∘" :type :composition}
           (lex "(bu + 2)"))
     "(bu ÷ 2) ∘ (bu + 2)"))
+
+(deftest functioning
+  (are [exp act] (= exp (-> act lex parse))
+    {:definition
+     {:symbol "sub1"
+      :body {:composition
+             '({:construction ({:symbol "id"} {:constant 1})}
+               {:symbol "-"})}}}
+    "Def sub1 ≡ - ∘ [id, ‾1‾]"))
