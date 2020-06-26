@@ -8,13 +8,13 @@
 
 (defn decoration [constant]
   ^{:key (gensym "span")}
-  [:span {:style {:textDecoration "overline"}} (rest constant)])
+  [:span {:style {:textDecoration "overline"}} (rest (butlast constant))])
 
 (defn fix-overline [s]
-  (if (re-matches #".*‾-?\d+.*" s)
+  (if (re-matches #".*‾-?\d+‾.*" s)
     (butlast
-     (interleave (split s #"‾-?\d+")
-                 (cycle (map decoration (re-seq #"‾-?\d+" s)))))
+     (interleave (split s #"‾-?\d+‾")
+                 (cycle (map decoration (re-seq #"‾-?\d+‾" s)))))
     s))
 
 (defn commands-history []
