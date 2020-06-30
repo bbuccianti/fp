@@ -56,7 +56,7 @@
 
        [([(:or {:type :composition} {:type :symbol}
                {:type :number} {:type :constant}
-               {:type :comma}) & r] :seq)]
+               {:type :comma} {:type :empty}) & r] :seq)]
        (group-operators (conj acc (first left)) r)))))
 
 (defn parse [lexed]

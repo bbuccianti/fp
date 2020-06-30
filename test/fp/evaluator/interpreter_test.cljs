@@ -97,10 +97,12 @@
     "⊥" "distr: B"
 
     "<<A,B>,C,D>" "apndl: <<A,B>,<C,D>>"
+    "<1, 2, 3, 4>" "apndl: <1, <2, 3, 4>>"
     "<y>"         "apndl: <y, ∅>"
     "⊥"           "apndl: C"
 
     "<A,B,<C,D>>" "apndr:<<A,B>,<C,D>>"
+    "<1, 2, 3, 4>" "apndr: <<1, 2, 3>, 4>"
     "<y>"         "apndr: <∅, y>"
     "⊥"           "apndr: D"
 
@@ -127,7 +129,8 @@
     "<A,4>"                "α 1 : <<A,B,C>,<4,5,6>>"
     "8"                    "+ ∘ α × : <<1,2>,<2,3>>"
     "20"                   "/+ ∘ α×:<<1,2>,<3,4>,<2,3>>"
-    "<H>"                  "(while (not ∘ null ∘ tl) tl): <A,B,H>"))
+    "<H>"                  "(while (not ∘ null ∘ tl) tl): <A,B,H>"
+    "<3, ∅>"               "[2, ∅]: <1, 3>"))
 
 (deftest binary-to-unary
   (are [exp act] (= exp (-> act lex parse evaluate))
@@ -140,10 +143,10 @@
     "<2,3,<4,5>>" "apndr ∘ [[id,‾3‾],[‾4‾,‾5‾]]: 2"))
 
 (deftest very-difficult
-  (are [exp act] (= exp (-> act lex parse evaluate))
-    {:number 8} "+ ∘ [(bu + 2) ∘ id, id]: 3"
-    '({:number 5} {:number 3}) "[(bu + 2) ∘ id, id]: 3"
-    '({:number 3} {:number 5}) "[id, (bu + 2) ∘ id]: 3"
-    {:number 30} "-∘[(bu × 6) ∘ id,id]∘1∘(while (not∘null∘tl) tl): <10,9,8,7,6>"
-    {:number 6}  "(bu + 2) ∘ (bu + 2): 2"
-    '({:number 2} {:number 6}) "[id, (bu + 2) ∘ (bu + 2)]: 2"))
+  (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))
+    "8"      "+ ∘ [(bu + 2) ∘ id, id]: 3"
+    "<5, 3>" "[(bu + 2) ∘ id, id]: 3"
+    "<3, 5>" "[id, (bu + 2) ∘ id]: 3"
+    "30"     "-∘[(bu × 6) ∘ id,id]∘1∘(while (not∘null∘tl) tl): <10,9,8,7,6>"
+    "6"      "(bu + 2) ∘ (bu + 2): 2"
+    "<2, 6>" "[id, (bu + 2) ∘ (bu + 2)]: 2"))

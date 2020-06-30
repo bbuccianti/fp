@@ -85,13 +85,13 @@
 
               "apndl"   #(wrap-appnd
                           (second %) [(first %)]
-                          (and (seq? %) (seq? (first %)))
+                          (or (seq? %) (kempty? %))
                           (fn [operand]
                             (into [(first %)] operand)))
 
               "apndr"   #(wrap-appnd
                           (first %) [(second %)]
-                          (and (seq? %) (seq? (first %)))
+                          (or (seq? %) (kempty? (first %)))
                           (fn [operand]
                             (concat operand [(last %)])))
 
@@ -123,6 +123,9 @@
   (match [operator operand]
     [_ :undefined]
     :undefined
+
+    [:empty _]
+    :empty
 
     [{:number n} _]
     (if (>= (count operand) n)
