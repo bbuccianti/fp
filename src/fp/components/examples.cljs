@@ -323,6 +323,7 @@
   (let [enabled? (rf/subscribe [:config/examples?])]
     (when @enabled?
       [:> ui/container
+       {:style {:margin-bottom "0"}}
        [toggler-bar]
        [selectors]
        [predicates]

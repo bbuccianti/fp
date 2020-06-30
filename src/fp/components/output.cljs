@@ -66,8 +66,8 @@
 (defn screen []
   [:> ui/container
    {:id "screen"
-    :style {:padding-bottom "90px"
-            :padding-top "20px"
+    :style {:padding-bottom "2em"
+            :padding-top "2em"
             :minHeight "90vh"}}
    [commands-history]
    [man]])
