@@ -64,6 +64,15 @@
  (fn [db _]
    (update-in db [:man :functions?] not)))
 
+(rf/reg-event-db
+ :examples/disable-all
+ (fn [db _]
+   (assoc db :man {:selectors? false
+                   :predicates? false
+                   :arithmetics? false
+                   :logics? false
+                   :functions? false})))
+
 (defn make-card [{:keys [header meta examples width fluid]}]
   ^{:key header}
   [:> ui/grid-column

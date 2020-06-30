@@ -147,6 +147,7 @@
     (rf/dispatch [:add-output new-input])
     (rf/dispatch [:index/tolast])
     (rf/dispatch [:update-input ""])
+    (rf/dispatch [:examples/disable-all])
     (.. (gdom/getElement "container") (scrollIntoView false))))
 
 (defn insert-char [ch]
