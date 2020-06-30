@@ -170,7 +170,8 @@
   (case (.-key e)
     "Enter" (do
               (insert-char ch)
-              (rf/dispatch [:input/close-selector!]))
+              (rf/dispatch [:input/close-selector!])
+              (.. (gdom/getElement "container") (scrollIntoView false)))
     nil))
 
 (defn handle-change [new-in]
