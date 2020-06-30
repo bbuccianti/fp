@@ -65,6 +65,7 @@
    (update-in db [:man :functions?] not)))
 
 (defn make-card [{:keys [header meta examples width fluid]}]
+  ^{:key header}
   [:> ui/grid-column
    {:width width
     :style {:margin-bottom "2em"}}
@@ -78,6 +79,7 @@
       {:textAlign "center"}
       (doall
        (for [text examples]
+         ^{:key text}
          [:pre text]))]]]])
 
 (defn selectors []
