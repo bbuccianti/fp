@@ -12,6 +12,7 @@
       (if (.endsWith (str x) ".00") (str (js/parseInt x)) (str x)))
     [{:boolean b}] (if b "T" "F")
     [{:defined df}] (:symbol df)
+    [{:error t :target s}] (str s " ?")
     [([& sqc] :seq)]
     (if (= (count sqc) 0)
       "∅"

@@ -12,4 +12,5 @@
     "⊥" :undefined
     "∅" :empty
     "∅" []
-    "<A, T, 1>" [{:symbol "A"} {:boolean true} {:number 1}]))
+    "<A, T, 1>" [{:symbol "A"} {:boolean true} {:number 1}]
+    "sub5 ?" {:error :err/symbol :target "sub5"}))

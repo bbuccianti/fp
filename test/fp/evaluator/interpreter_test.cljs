@@ -150,3 +150,7 @@
     "30"     "-∘[(bu × 6) ∘ id,id]∘1∘(while (not∘null∘tl) tl): <10,9,8,7,6>"
     "6"      "(bu + 2) ∘ (bu + 2): 2"
     "<2, 6>" "[id, (bu + 2) ∘ (bu + 2)]: 2"))
+
+(deftest errors
+  (are [exp act] (= exp (-> act lex parse evaluate))
+    {:error :err/symbol :target "sub5"} "sub5: 2"))

@@ -117,7 +117,7 @@
         (nth (reverse operand) (dec i))
         :undefined))
 
-    :else (throw (js/Error. "Error symbol not found"))))
+    :else (throw {:error :err/symbol :target op})))
 
 (defn invoke [operator operand]
   (match [operator operand]
@@ -175,14 +175,14 @@
         (recur (invoke (:function w) target))
         target))
 
-    :else (throw (js/Error. "Error invoking"))))
+    :else (throw {:error :err/invoking :target [operator operand]})))
 
 (defn evaluate [parsed]
   (match [parsed]
     [{:application a}]
     (try
       (invoke (:operators a) (:operands a))
-      (catch js/Error err err))
+      (catch :default err err))
 
     [{:definition df}]
     (do
