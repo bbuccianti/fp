@@ -1,7 +1,7 @@
 (ns fp.evaluator.parser
   (:require
    [clojure.core.match :refer [match]]
-   [clojure.string :refer [replace]]
+   [clojure.string :refer [replace lower-case]]
    [cljs.reader :refer [read-string]]
    [fp.evaluator.lexer :refer [lex]]))
 
@@ -83,9 +83,10 @@
 
     [(d :guard #(some #{:definition} (map :type lexed)))]
     (let [[left _ right] (partition-by #(= :definition (:type %)) lexed)]
-      {:definition
-       {:symbol (:string (second left))
-        :body (parse right)}})
+      (if (= (lower-case (:string (first left))) "def")
+        {:definition
+         {:symbol (:string (second left))
+          :body (parse right)}}))
 
     [(condi :guard #(some #{:semicolon} (map :type lexed)))]
     (let [parts (partition-by #(= :right (:type %)) lexed)
