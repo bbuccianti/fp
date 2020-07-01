@@ -17,6 +17,7 @@
 (def dictionary
   {:en {:eval "Eval"
         :errors "Report bugs!"
+        :definitions "Function definition"
         :selectors "Selectors"
         :predicates "Predicates"
         :arithmetics "Arithmetics"
@@ -68,6 +69,7 @@
 
    :es {:eval "Evaluar"
         :errors "Reportá errores!"
+        :definitions "Definición de funciones"
         :selectors "Selectores"
         :predicates "Predicados"
         :arithmetics "Aritméticas"

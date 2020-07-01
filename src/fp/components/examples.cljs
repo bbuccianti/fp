@@ -2,6 +2,7 @@
   (:require
    [re-frame.core :as rf]
    [fp.translation :refer [trs]]
+   [fp.state :as state]
    [fp.semantic :as ui]))
 
 (rf/reg-sub
@@ -64,14 +65,20 @@
  (fn [db _]
    (update-in db [:man :functions?] not)))
 
+(rf/reg-sub
+ :examples/definitions?
+ (fn [db _]
+   (get-in db [:man :definitions?])))
+
+(rf/reg-event-db
+ :examples/toggle-definitions!
+ (fn [db _]
+   (update-in db [:man :definitions?] not)))
+
 (rf/reg-event-db
  :examples/disable-all
  (fn [db _]
-   (assoc db :man {:selectors? false
-                   :predicates? false
-                   :arithmetics? false
-                   :logics? false
-                   :functions? false})))
+   (assoc db :man (:man state/db))))
 
 (defn make-card [{:keys [header meta examples width fluid]}]
   ^{:key header}
@@ -85,7 +92,7 @@
      [:> ui/card-header header]
      [:> ui/card-meta meta]
      [:> ui/card-description
-      {:textAlign "center"}
+      {:textAlign "left"}
       (doall
        (for [text examples]
          ^{:key text}
@@ -255,7 +262,7 @@
         [make-card {:header "∘"
                     :meta (trs [@lang] [:composition])
                     :examples ["1 ∘ tl: <A,B,C>  => B"]}]
-        [make-card {:header "[f₁,...,fₙ]"
+        [make-card {:header "[f₁, ... ,fₙ]"
                     :meta (trs [@lang] [:construction])
                     :examples ["[tl, tlr]: <A,B,C>"
                                "=>   <<B,C>, <A,B>>"]}]
@@ -288,12 +295,38 @@
                     :examples ["(while (not ∘ null ∘ tl) tl): <A,B,<A,B>>"
                                "=>  <A,B>"]}]]])))
 
+(defn definitions []
+  (let [enabled? (rf/subscribe [:examples/definitions?])
+        lang (rf/subscribe [:lang])]
+    (when @enabled?
+      [:> ui/grid
+       {:columns "1"
+        :centered true
+        :style {:padding-top "2em"}}
+       [:> ui/grid-row
+        [make-card {:header "mean"
+                    :meta ""
+                    :width "5"
+                    :fluid true
+                    :examples ["Def mean ≡ (null → ⊥; ÷ ∘ [/+, length])"
+                               "mean: <3, 6, 9>"
+                               "=> 6"]}]
+        [make-card {:header "iota"
+                    :meta ""
+                    :width "7"
+                    :fluid true
+                    :examples ["Def sub1 ≡ - ∘ [id, ‾1‾]"
+                               "Def irec ≡ (eq ∘ [1, ‾0‾] → 2; irec ∘ [sub1 ∘ 1, apndl])"
+                               "Def iota ≡ irec ∘ [id, ∅]"
+                               "iota: 5"
+                               "=> <1, 2, 3, 4, 5>"]}]]])))
+
 (defn make-button [{:keys [kw content dispatcher]}]
   (let [enabled? (rf/subscribe [kw])]
     [:> ui/button
      {:content content
       :toggle true
-      :color (if @enabled? "grey" "teal")
+      :color (if @enabled? "teal" "grey")
       :onClick #(rf/dispatch [dispatcher])}]))
 
 (defn toggler-bar []
@@ -317,7 +350,10 @@
                    :dispatcher :examples/toggle-sequences!}]
      [make-button {:kw :examples/functions?
                    :content (trs [@lang] [:functions])
-                   :dispatcher :examples/toggle-functions!}]]))
+                   :dispatcher :examples/toggle-functions!}]
+     [make-button {:kw :examples/definitions?
+                   :content (trs [@lang] [:definitions])
+                   :dispatcher :examples/toggle-definitions!}]]))
 
 (defn man []
   (let [enabled? (rf/subscribe [:config/examples?])]
@@ -330,4 +366,5 @@
        [arithmetics]
        [logics]
        [sequences]
-       [functions]])))
+       [functions]
+       [definitions]])))

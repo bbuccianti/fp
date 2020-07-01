@@ -17,7 +17,8 @@
                :predicates? false
                :arithmetics? false
                :logics? false
-               :functions? false}
+               :functions? false
+               :definitions? false}
          :helpers [:write-expression :special-chars :docs
                    :report!]
          :user-defs {}})
