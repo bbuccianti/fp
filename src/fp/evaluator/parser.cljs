@@ -97,9 +97,10 @@
        :false (parse f)})
 
     [([{:type :open-cond} {:type :symbol :string "while"} & r] :seq)]
-    (let [elements (butlast r)]
-      {:while {:predicate (-> r butlast butlast butlast rest parse)
-               :function (-> r butlast last parse)}})
+    (let [elements (butlast r)
+          grouped (group-operators elements)]
+      {:while {:predicate (-> grouped first next butlast parse)
+               :function (-> grouped last parse)}})
 
     [(compo :guard #(some #{:composition} (map :type lexed)))]
     (let [clean (->> compo group-operators
