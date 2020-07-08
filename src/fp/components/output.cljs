@@ -3,8 +3,12 @@
    [re-frame.core :as rf]
    [clojure.string :refer [split]]
    [fp.translation :refer [trs]]
-   [fp.semantic :as ui]
-   [fp.components.examples :refer [man]]))
+   [fp.semantic :as ui]))
+
+(defn credits []
+  [:> ui/header
+   {:textAlign "center"}
+   "FP"])
 
 (defn decoration [constant]
   ^{:key (gensym "span")}
@@ -42,7 +46,7 @@
           {:animated "fade"
            :attached "right"
            :color "facebook"
-           :onClick #(rf/dispatch [:update-input o])}
+           :onClick #(rf/dispatch [:update-input (:command o)])}
           [:> ui/button-content
            {:visible true}
            (:index o)]
@@ -54,20 +58,11 @@
        [:> ui/container
         {:textAlign "right"
          :style {:margin-bottom "2em"}}
-        [:> ui/button
-         {:attach "bottom"
-          :compact true
-          :content (trs [@lang] [:errors])
-          :color "blue"
-          :as "a"
-          :target "_blank"
-          :href "https://todo.sr.ht/~bbuccianti/fp"}]])]))
+        ])]))
 
 (defn screen []
   [:> ui/container
    {:id "screen"
     :style {:padding-bottom "2em"
-            :padding-top "2em"
-            :minHeight "90vh"}}
-   [commands-history]
-   [man]])
+            :padding-top "2em"}}
+   [commands-history]])

@@ -3,7 +3,7 @@
    [goog.dom :as gdom]
    [reagent.core :as rg]
    [re-frame.core :as rf]
-   [clojure.string :as string :refer [lower-case includes?]]
+   [clojure.string :as string :refer [lower-case includes? trim]]
    [fp.semantic :as ui]
    [fp.state :as state]
    [fp.components.config :as config]
@@ -147,7 +147,7 @@
     (rf/dispatch [:add-output new-input])
     (rf/dispatch [:index/tolast])
     (rf/dispatch [:update-input ""])
-    (rf/dispatch [:examples/disable-all])
+    ;;(rf/dispatch [:examples/disable-all])
     (.. (gdom/getElement "container") (scrollIntoView false))))
 
 (defn insert-char [ch]
@@ -236,7 +236,7 @@
         :onKeyUp #(if (= "Escape" (.-key %))
                     (rf/dispatch [:input/close-selector!]))
         :onChange
-        #(rf/dispatch [:input/change-selector (.-value (.-target %))])
+        #(rf/dispatch [:input/change-selector (trim (.-value (.-target %)))])
 
         :onKeyPress
         #(handle-selector-key-pressed
@@ -264,11 +264,7 @@
         lang (rf/subscribe [:lang])
         helper (rf/subscribe [:helper])]
     [:> ui/container
-     {:id "input-bar"
-      :style {:position "sticky"
-              :bottom "0"
-              :padding-bottom "10px"
-              :z-index 99}}
+     {:id "input-bar"}
      [:> ui/input
       {:placeholder (trs [@lang] [@helper])
        :fluid true
@@ -285,12 +281,22 @@
      [:> ui/button-group
       {:compact true
        :size "small"}
+      [config/language-button]
       (doall
        (for [[kw toggle-kw icon color]
-             [[:config/special-chars? :config/toggle-specials-chars!
-               "keyboard outline" "green"]
-              [:config/examples? :config/toggle-examples! "help" "blue"]]]
+             [[:config/examples? :config/toggle-examples! "help" "blue"]
+              [:config/special-chars? :config/toggle-specials-chars!
+               "keyboard outline" "green"]]]
          ^{:key kw}
          [config/toggle-button kw toggle-kw icon color]))
-      [config/language-button]]
-     [special-chars]]))
+      [special-chars]]
+     [:> ui/button
+      {:attach "bottom"
+       :floated "right"
+       :compact true
+       :content (trs [@lang] [:errors])
+       :color "blue"
+       :as "a"
+       :target "_blank"
+       :href "https://todo.sr.ht/~bbuccianti/fp"
+       :style {:margin-top "1em"}}]]))
