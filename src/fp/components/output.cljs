@@ -6,9 +6,30 @@
    [fp.semantic :as ui]))
 
 (defn credits []
-  [:> ui/header
-   {:textAlign "center"}
-   "FP"])
+  (let [lang (rf/subscribe [:lang])]
+    [:> ui/container
+     [:> ui/header
+      {:textAlign "center"
+       :style {:margin "2rem auto"
+               :padding-bottom "1rem"
+               :width "20%"
+               :border-bottom "1px solid black"}}
+      (trs [@lang] [:title])]
+     [:> ui/ilist
+      {:style {:padding-bottom "2rem"
+               :border-bottom "1px solid black"}}
+      [:> ui/ilist-item
+       [:> ui/ilist-content
+        [:> ui/ilist-header (trs [@lang] [:paper-backus])]
+        [:> ui/ilist-description
+         [:a
+          {:href "https://dl.acm.org/doi/10.1145/359576.359579"
+           :target "_blank"}
+          (trs [@lang] [:paper-acm])]
+         [:p
+          {:style {:display "inline-block"
+                   :margin-left "1.5rem"}}
+          "John Warner Backus"]]]]]]))
 
 (defn decoration [constant]
   ^{:key (gensym "span")}

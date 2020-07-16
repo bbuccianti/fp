@@ -38,3 +38,8 @@
 (def header           (component "Header"))
 (def divider          (component "Divider"))
 (def dimmer           (component "Dimmer"))
+(def ilist             (component "List"))
+(def ilist-item        (component "List" "Item"))
+(def ilist-content     (component "List" "Content"))
+(def ilist-header      (component "List" "Header"))
+(def ilist-description (component "List" "Description"))

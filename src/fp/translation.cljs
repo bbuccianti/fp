@@ -65,7 +65,10 @@
         :write-expression "Insert here an expression!"
         :special-chars "To choose a special char type '\\'"
         :docs "You can see some examples activating the help buttons"
-        :report! "Help us to get better by reporting errors!"}
+        :report! "Help us to get better by reporting errors!"
+        :paper-backus "Can programming be liberated from the von Neumann style?"
+        :paper-acm "Communications of the ACM - August 1978"
+        :title "FP Interpreter"}
 
    :es {:eval "Evaluar"
         :errors "Reportá errores!"
@@ -117,7 +120,10 @@
         :write-expression "Insertá aquí una expresión!"
         :special-chars "Para seleccionar un caracter especial ingresá '\\'"
         :docs "Podés ver algunos ejemplos activando los botones de ayuda"
-        :report! "Ayudanos a mejorar reportando los errores que encuentres!"}})
+        :report! "Ayudanos a mejorar reportando los errores que encuentres!"
+        :paper-backus "Puede la programación ser liberada del paradigma de von Neumann?"
+        :paper-acm "Comunicaciones de ACM - Agosto 1978"
+        :title "Intéprete de FP"}})
 
 (def opts {:dict dictionary})
 (def trs (partial tr opts))
