@@ -123,7 +123,7 @@
         :report! "Ayudanos a mejorar reportando los errores que encuentres!"
         :paper-backus "Puede la programación ser liberada del paradigma de von Neumann?"
         :paper-acm "Comunicaciones de ACM - Agosto 1978"
-        :title "Intéprete de FP"}})
+        :title "Intérprete de FP"}})
 
 (def opts {:dict dictionary})
 (def trs (partial tr opts))
