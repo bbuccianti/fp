@@ -7,6 +7,7 @@
    [fp.semantic :as ui]
    [fp.state :as state]
    [fp.components.config :as config]
+   [fp.components.events :as events]
    [fp.translation :refer [trs]]
    [fp.evaluator.lexer :refer [lex]]
    [fp.evaluator.parser :refer [parse]]
@@ -18,126 +19,6 @@
    [:alpha "α"] [:then "→"] [:empty "∅"] [:undef "⊥"]
    [:definition "≡"]])
 
-(rf/reg-sub
- :helper
- (fn [db _]
-   (let [cout (count (:output db))
-         helpers (count (:helpers db))
-         n (mod cout helpers)]
-     (get-in db [:helpers n]))))
-
-(rf/reg-sub
- :input
- (fn [db _]
-   (:input db)))
-
-(rf/reg-sub
- :current-input
- (fn [db _]
-   (get (:output db) (:index db) "")))
-
-(rf/reg-event-db
- :update-input
- (fn [db [_ new-string]]
-   (assoc db :input new-string)))
-
-(rf/reg-sub
- :output-count
- (fn [db _]
-   (count (:output db))))
-
-(rf/reg-sub
- :output
- (fn [db _]
-   (:output db)))
-
-(rf/reg-event-db
- :add-output
- (fn [db [_ nout]]
-   (update db :output conj nout)))
-
-(rf/reg-event-db
- :index
- (fn [db _]
-   (:index db)))
-
-(rf/reg-cofx
- :add-output-count
- (fn [cofx _]
-   (assoc cofx :output-count (count (get-in cofx [:db :output])))))
-
-(rf/reg-event-db
- :index/tolast
- (fn [db _]
-   (assoc db :index (count (:output db)))))
-
-(rf/reg-event-fx
- :index/inc
- [(rf/inject-cofx :add-output-count)]
- (fn [{:keys [db output-count]} _]
-   (let [new-index (min (inc (:index db)) output-count)]
-     {:db (assoc db :index new-index)
-      :dispatch-later [{:ms 50
-                        :dispatch
-                        [:update-input
-                         (get-in db [:output new-index :command] "")]}]})))
-
-(rf/reg-event-fx
- :index/dec
- [(rf/inject-cofx :add-output-count)]
- (fn [{:keys [db output-count]} _]
-   (let [index (:index db)
-         new-index (if (> 0 (dec index))
-                     output-count
-                     (dec index))]
-     {:db (assoc db :index new-index)
-      :dispatch-later [{:ms 50
-                        :dispatch
-                        [:update-input
-                         (get-in db [:output new-index :command] "")]}]})))
-
-(rf/reg-sub
- :input/selector?
- (fn [db _]
-   (:selector? db)))
-
-(rf/reg-event-fx
- :input/show-selector!
- (fn [{:keys [db]} _]
-   {:db (assoc db :selector? true)
-    :dispatch-later [{:ms 50 :dispatch [:input/selector-focus]}]}))
-
-(rf/reg-event-fx
- :input/selector-focus
- (fn [{:keys [db]} _]
-   (let [selector (gdom/getElement "input-selector")]
-     (.focus selector)
-     {:db db})))
-
-(rf/reg-event-fx
- :input/focus
- (fn [{:keys [db]} _]
-   (let [input (gdom/getElement "input")]
-     (.focus input)
-     {:db db})))
-
-(rf/reg-event-fx
- :input/close-selector!
- (fn [{:keys [db]} _]
-   {:db (assoc db :selector? false)
-    :dispatch-later [{:ms 50 :dispatch [:input/focus]}
-                     {:ms 50 :dispatch [:input/change-selector ""]}]}))
-
-(rf/reg-sub
- :input/selector
- (fn [db _]
-   (:selector-input db)))
-
-(rf/reg-event-db
- :input/change-selector
- (fn [db [_ input-string]]
-   (assoc db :selector-input input-string)))
-
 (defn handle-action []
   (let [in (rf/subscribe [:input])
         output-count (rf/subscribe [:output-count])
@@ -147,7 +28,7 @@
     (rf/dispatch [:add-output new-input])
     (rf/dispatch [:index/tolast])
     (rf/dispatch [:update-input ""])
-    ;;(rf/dispatch [:examples/disable-all])
+    ;; (rf/dispatch [:examples/disable-all])
     (.. (gdom/getElement "container") (scrollIntoView false))))
 
 (defn insert-char [ch]

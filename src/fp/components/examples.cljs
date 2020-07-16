@@ -3,82 +3,8 @@
    [re-frame.core :as rf]
    [fp.translation :refer [trs]]
    [fp.state :as state]
-   [fp.semantic :as ui]))
-
-(rf/reg-sub
- :examples/predicates?
- (fn [db _]
-   (get-in db [:man :predicates?])))
-
-(rf/reg-event-db
- :examples/toggle-predicates!
- (fn [db _]
-   (update-in db [:man :predicates?] not)))
-
-(rf/reg-sub
- :examples/arithmetics?
- (fn [db _]
-   (get-in db [:man :arithmetics?])))
-
-(rf/reg-event-db
- :examples/toggle-arithmetics!
- (fn [db _]
-   (update-in db [:man :arithmetics?] not)))
-
-(rf/reg-sub
- :examples/selectors?
- (fn [db _]
-   (get-in db [:man :selectors?])))
-
-(rf/reg-event-db
- :examples/toggle-selectors!
- (fn [db _]
-   (update-in db [:man :selectors?] not)))
-
-(rf/reg-sub
- :examples/logics?
- (fn [db _]
-   (get-in db [:man :logics?])))
-
-(rf/reg-event-db
- :examples/toggle-logics!
- (fn [db _]
-   (update-in db [:man :logics?] not)))
-
-(rf/reg-sub
- :examples/sequences?
- (fn [db _]
-   (get-in db [:man :sequences?])))
-
-(rf/reg-event-db
- :examples/toggle-sequences!
- (fn [db _]
-   (update-in db [:man :sequences?] not)))
-
-(rf/reg-sub
- :examples/functions?
- (fn [db _]
-   (get-in db [:man :functions?])))
-
-(rf/reg-event-db
- :examples/toggle-functions!
- (fn [db _]
-   (update-in db [:man :functions?] not)))
-
-(rf/reg-sub
- :examples/definitions?
- (fn [db _]
-   (get-in db [:man :definitions?])))
-
-(rf/reg-event-db
- :examples/toggle-definitions!
- (fn [db _]
-   (update-in db [:man :definitions?] not)))
-
-(rf/reg-event-db
- :examples/disable-all
- (fn [db _]
-   (assoc db :man (:man state/db))))
+   [fp.semantic :as ui]
+   [fp.components.events :as events]))
 
 (defn make-card [{:keys [header meta examples width fluid]}]
   ^{:key header}
