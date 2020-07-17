@@ -73,7 +73,15 @@
 
     "F"  "not : T"
     "T"  "not : F"
-    "⊥"  "not : 2"))
+    "⊥"  "not : 2"
+
+    "T"  "lt: <2, 3>"
+    "F"  "lt: <3, 2>"
+    "⊥"  "lt: 1"
+
+    "T"  "gt: <3, 2>"
+    "F"  "gt: <2, 3>"
+    "⊥"  "gt: 1"))
 
 (deftest sequences
   (are [exp act] (= (-> exp lex parse) (-> act lex parse evaluate))

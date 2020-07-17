@@ -48,6 +48,14 @@
                           (and (binary? %) (every? kbool? %))
                           (some identity (map :boolean %)))
 
+              "lt"      #(wrap-undefined
+                          (binary? %)
+                          (< (first %) (second %)))
+
+              "gt"      #(wrap-undefined
+                          (binary? %)
+                          (> (first %) (second %)))
+
               "length"  #(wrap-undefined
                           (not (ksymbol? %))
                           (if (kempty? %) 0 (count %)))
