@@ -124,7 +124,17 @@
                     :meta (trs [@lang] [:not])
                     :examples ["not: F    => T"
                                "not: T    => F"
-                               "not: 1    => ⊥"]}]]])))
+                               "not: 1    => ⊥"]}]
+        [make-card {:header "lt"
+                    :meta (trs [@lang] [:lt])
+                    :examples ["lt: <2, 3>  => T"
+                               "lt: <3, 2>  => F"
+                               "lt: 1       => ⊥"]}]
+        [make-card {:header "gt"
+                    :meta (trs [@lang] [:gt])
+                    :examples ["gt: <3, 2>  => T"
+                               "gt: <2, 3>  => F"
+                               "lt: 1       => ⊥"]}]]])))
 
 (defn sequences []
   (let [enabled? (rf/subscribe [:examples/sequences?])
