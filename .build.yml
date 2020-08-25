@@ -1,11 +1,10 @@
-image: archlinux
+image: alpine/edge
 packages:
   - curl
   - nodejs
   - npm
   - rsync
-  - jdk8
-  - jre-openjdk-headless
+  - openjdk11-jre-headless
 sources:
   - https://git.sr.ht/~bbuccianti/fp
 environment:
