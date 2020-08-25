@@ -1,6 +1,6 @@
 # Interactive FP interpreter
 
-[![builds.sr.ht status](https://builds.sr.ht/~bbuccianti/fp/.build.yml.svg)](https://builds.sr.ht/~bbuccianti/fp/.build.yml?)
+[![builds.sr.ht status](https://builds.sr.ht/~bbuccianti/fp.svg)](https://builds.sr.ht/~bbuccianti/fp?)
 
 ## Overview
 
