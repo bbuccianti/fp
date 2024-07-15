@@ -10,8 +10,10 @@ sources:
 environment:
   deploy: deploy@69.164.203.126
 secrets:
-  - ffb1b60b-9c71-498c-9ba5-b8108512c1b8
+  - 897094d7-7887-48dd-ad0e-cc2486c76c25
 tasks:
+  - envsetup: |
+      cat .cloudflare >> .buildenv
   - setup: |
       cd fp
       curl -o lein https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
@@ -25,6 +27,4 @@ tasks:
       ./lein do clean, cljsbuild once min
   - deploy: |
       cd fp
-      sshopts="-o StrictHostKeyChecking=no -p 12345"
-      rsync -e "ssh $sshopts" -rP resources/ ${deploy}:fp.buccianti.dev/
-      ssh $sshopts ${deploy} '~/deploy.sh fp.buccianti.dev'
+      npx wrangler pages deploy resources/public --project-name=fp
