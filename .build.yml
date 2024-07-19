@@ -1,5 +1,7 @@
 image: alpine/edge
 packages:
+  - lua5.3
+  - netcat-openbsd
   - curl
   - nodejs
   - npm
@@ -21,10 +23,11 @@ tasks:
   - run-tests: |
       cd fp
       npm i ws
-      ./lein kaocha --no-watch
+      ./lein kaocha --no-watch || lua5.3 notify.lua
   - build: |
       cd fp
-      ./lein do clean, cljsbuild once min
+      ./lein do clean, cljsbuild once min || lua5.3 notify.lua
   - deploy: |
       cd fp
       npx wrangler pages deploy resources/public --project-name=fp
+      lua5.3 notify.lua "$?"
